@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
 import '../AppColors/appColors.dart';
+import '../Order/distributorOrderPage.dart';
 
 class LoginHome extends StatefulWidget {
   const LoginHome({Key? key}) : super(key: key);
@@ -16,7 +18,7 @@ class LoginHome extends StatefulWidget {
 }
 
 class _LoginHomeState extends State<LoginHome> {
-  String? salesPersonName, selectedOrderType;
+  String? salesPersonName, selectedOrderType, selectedExecutive;
   int? userType;
   List? listofOrderType = [];
   var distributorList = [];
@@ -96,16 +98,18 @@ class _LoginHomeState extends State<LoginHome> {
                       orderSelectionDropDown(),
                       Padding(padding: EdgeInsets.all(10)),
                       executiveDropDown(),
-                      Padding(padding: EdgeInsets.all(10)),
-                      distributorDropDown(),
-                      Padding(padding: EdgeInsets.all(10)),
-                      routeDropDown(),
-                      Padding(padding: EdgeInsets.all(8)),
+                      officersMenuDisplay(),
+
                       Row(
                         children: [
                           Expanded(
                               child: ElevatedButton(
-                                  onPressed: () {}, child: Text('Target'))),
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              App_Colors().appTextColorViolet)),
+                                  onPressed: () {},
+                                  child: Text('Target'))),
                         ],
                       ),
                       // Padding(padding: EdgeInsets.all(10)),
@@ -139,6 +143,7 @@ class _LoginHomeState extends State<LoginHome> {
         underline: Container(),
         hint: Center(child: Text('Select OrderType')),
         isExpanded: true,
+        value: selectedOrderType,
         items: listofOrderType!
             .map((e) => DropdownMenuItem(
                   value: e,
@@ -161,7 +166,6 @@ class _LoginHomeState extends State<LoginHome> {
             print(selectedOrderType);
           });
         },
-        value: selectedOrderType,
       ),
     );
   }
@@ -197,7 +201,7 @@ class _LoginHomeState extends State<LoginHome> {
             .toList(),
         onChanged: (value) {
           setState(() {
-            selectedOrderType = value!.toString();
+            selectedExecutive = value!.toString();
             if (selectedOrderType == 'Distributor Order') {
               MyApp().saveOrderType(1);
             }
@@ -310,18 +314,32 @@ class _LoginHomeState extends State<LoginHome> {
         Row(children: [
           Expanded(
             child: GestureDetector(
-              child: imageContainer(
-                  'lib/Images/ordericon.png', 'ORDER', App_Colors().appWhite),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ShopOrderPage()));
-              },
-            ),
+                child: imageContainer(
+                    'lib/Images/ordericon.png', 'ORDER', App_Colors().appWhite),
+                onTap: () {
+                  if (selectedOrderType == 'Shop Order') {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ShopOrderPage()));
+                  }
+                  if (selectedOrderType == 'Distributor Order') {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DisributorOrderPage()));
+                  }
+                }),
           ),
           Expanded(
             child: GestureDetector(
               child: imageContainer('lib/Images/stockicon.png', 'STOCK',
                   App_Colors().appStockBackground),
+              onTap: () {
+                EasyLoading.showToast('Coming soon....',
+                    duration: Duration(milliseconds: 300),
+                    toastPosition: EasyLoadingToastPosition.bottom);
+              },
             ),
           ),
         ]),
@@ -331,11 +349,21 @@ class _LoginHomeState extends State<LoginHome> {
                 child: GestureDetector(
               child: imageContainer('lib/Images/shop.png', 'SHOPS',
                   App_Colors().appShopBackGround),
+              onTap: () {
+                EasyLoading.showToast('Coming soon....',
+                    duration: Duration(milliseconds: 300),
+                    toastPosition: EasyLoadingToastPosition.bottom);
+              },
             )),
             Expanded(
               child: GestureDetector(
                 child: imageContainer('lib/Images/reporticon.png', 'REPORT',
                     App_Colors().appReportBackGround),
+                onTap: () {
+                  EasyLoading.showToast('Coming soon....',
+                      duration: Duration(milliseconds: 300),
+                      toastPosition: EasyLoadingToastPosition.bottom);
+                },
               ),
             ),
           ],
@@ -385,8 +413,25 @@ class _LoginHomeState extends State<LoginHome> {
     await MyApp().getUserType().then((value) => userType = value);
     if (userType == 1) {
       listofOrderType = ['Distributor Order', 'Shop Order'];
+      selectedOrderType = listofOrderType![0];
     }
 
     setState(() {});
+  }
+
+  officersMenuDisplay() {
+    if (selectedOrderType == 'Shop Order') {
+      return Column(
+        children: [
+          Padding(padding: EdgeInsets.all(10)),
+          distributorDropDown(),
+          Padding(padding: EdgeInsets.all(10)),
+          routeDropDown(),
+          Padding(padding: EdgeInsets.all(8)),
+        ],
+      );
+    } else {
+      return Padding(padding: EdgeInsets.all(10));
+    }
   }
 }

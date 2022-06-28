@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
-import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
+import 'package:swarnamordermanagement/View/Order/itemOrderPage.dart';
 
-class ShopOrderPage extends StatefulWidget {
-  const ShopOrderPage({Key? key}) : super(key: key);
+import '../AppColors/appColors.dart';
+import '../Widgets/appWidgets.dart';
+import 'newOrderPage.dart';
+
+class DisributorOrderPage extends StatefulWidget {
+  const DisributorOrderPage({Key? key}) : super(key: key);
 
   @override
-  State<ShopOrderPage> createState() => _ShopOrderPageState();
+  State<DisributorOrderPage> createState() => _DisributorOrderPageState();
 }
 
-class _ShopOrderPageState extends State<ShopOrderPage> {
+class _DisributorOrderPageState extends State<DisributorOrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +29,8 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                   flex: 5,
                   child: Container(
                     alignment: Alignment.center,
-                    child: AppWidgets().text(text: 'SHOPS', textsize: 28),
+                    child:
+                        AppWidgets().text(text: 'DISTRIBUTORS', textsize: 28),
                   )),
               Expanded(
                   flex: 1,
@@ -69,12 +73,8 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AppWidgets().text(
-                                        text: 'Shop Name',
+                                        text: 'Distributor Name',
                                         textsize: 20,
-                                        color: App_Colors().appTextColorViolet),
-                                    AppWidgets().text(
-                                        text: 'Branch',
-                                        textsize: 18,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
                                         text: 'Mobile Number',
@@ -83,6 +83,7 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                     Padding(padding: EdgeInsets.all(5))
                                   ]),
                             ),
+                            Padding(padding: EdgeInsets.all(3)),
                             Expanded(
                               flex: 1,
                               child: Row(
@@ -100,7 +101,13 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                 MaterialStateProperty.all(
                                                     App_Colors()
                                                         .appTextColorViolet)),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      NewOrderPage())));
+                                        },
                                         child: AppWidgets().text(
                                             textsize: 12,
                                             text: 'ORDER',
