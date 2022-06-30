@@ -1,10 +1,16 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 
+import '../../Model/Item/itemListModel.dart';
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
 
@@ -15,93 +21,101 @@ class ItemOrderPage extends StatefulWidget {
   State<ItemOrderPage> createState() => _ItemOrderPageState();
 }
 
+List itemGroupList = [];
+
 class _ItemOrderPageState extends State<ItemOrderPage> {
-  late ScrollController itemGroupListScroller;
-  late ScrollController itemNameListScroller;
+  List<Tab> itemGroupTabs = [];
+  List<ItemListModel> itemList = [];
+  var selectedPage, selectedItemGroup;
+  ItemGroupTabsController titleTab = Get.put(ItemGroupTabsController());
+  int selectedPageindex = 0;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    itemGroupListScroller = ScrollController();
-    itemNameListScroller = ScrollController();
+    getTabName();
+    getItemGroupList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-          child: Column(
-        children: [
-          Padding(padding: EdgeInsets.all(2)),
-          Expanded(
-            flex: 1,
-            child: Row(
-              children: [
-                Expanded(
-                    // flex: 1,
-                    child: Container(
+    if (itemGroupList.isEmpty) {
+      getItemGroupList();
+      return Center(child: CircularProgressIndicator());
+    } else {
+      return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: SafeArea(
+              child: Column(children: [
+            Expanded(
+                flex: 1,
+                child: Container(
                   alignment: Alignment.center,
-                  child: AppWidgets().text(text: 'ITEM ORDER', textsize: 28),
+                  child: AppWidgets().text(text: 'ORDER'),
                 )),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                      controller: itemGroupListScroller,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 15,
-                      itemBuilder: ((context, index) {
-                        return Column(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                padding: EdgeInsets.all(15),
-                                margin: EdgeInsets.all(3),
-                                child: AppWidgets().text(
-                                    text: 'item Group Name',
-                                    textsize: 20,
-                                    color: App_Colors().appTextColorViolet),
-                              ),
-                            ),
-                          ],
-                        );
-                      })),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-                itemCount: 10,
-                itemBuilder: ((context, index) {
-                  return Container(
-                      child: Row(
-                    children: [
-                      Expanded(child: Text('Item Name')),
-                      Expanded(child: Text('Rate')),
-                      Expanded(child: Text('Qty')),
-                    ],
-                  ));
-                })),
-            flex: 10,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                    onPressed: () {}, child: AppWidgets().text(text: 'Save')),
+            Padding(padding: EdgeInsets.only(top: 5, bottom: 5)),
+            Expanded(
+              flex: 1,
+              child: TabBar(
+                isScrollable: true,
+                tabs: titleTab.itemGroupTabs,
+                controller: titleTab.tabController,
+                onTap: (index) {
+                  selectedItemGroup = itemGroupList[index].toString();
+                  getItemList();
+                  // getTextEditingControllerList();
+                },
               ),
-            ],
-          )
-        ],
-      )),
-    );
+            ),
+          ])));
+    }
   }
+
+  getTabName() async {
+    for (var i in itemGroupList) {
+      itemGroupTabs.add(Tab(
+        text: i,
+      ));
+    }
+    setState(() {});
+  }
+
+  getItemGroupList() {
+    itemGroupList = [
+      'Gingely Oil',
+      'Coconut Oil',
+      'Dish Gold',
+      'Bar Soap',
+      'Riceban Oil'
+    ];
+    setState(() {
+      titleTab.getTabInitialized();
+    });
+  }
+
+  getItemList() {
+    itemList = [];
+  }
+}
+
+class ItemGroupTabsController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  List<Tab> itemGroupTabs = [];
+  ItemGroupTabsController titleTab = Get.put(ItemGroupTabsController());
+  TabController? tabController;
+  // AnimationController animationController;
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    //itemTabController = TabController(length: itemGroupList.length, vsync: this);
+  }
+
+  getTabInitialized() {
+    // itemGroupTabs.clear();
+    // for (var name in itemGroupList) {
+    //   itemGroupTabs.add(Tab(text: name));
+    // }
+  }
+  // for(var name in itemGroupList){}
 }
