@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:swarnamordermanagement/Model/Api/loginApiModel.dart';
 import 'package:swarnamordermanagement/Services/LoadData/loadingData.dart';
+import '../../Blocs/loginBloc.dart';
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
@@ -15,11 +16,13 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
+  final loginBloc = LoginBloc();
   Timer? timer;
+  var username, password;
   bool iswrongCredential = false, isVisible = false, isloading = false;
 
   LoadData? loadData;
@@ -232,6 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   loginbuttonPressed() async {
     var userType, token, salesPerson;
+    saveUsenameandPassword();
     await ApiServices()
         .Login(usernameController.text, passwordController.text)
         .then((value) async {
@@ -266,5 +270,15 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     });
     //   setState(() {});
+  }
+
+  saveUsenameandPassword() {
+    username = usernameController.text;
+    password = passwordController.text;
+  }
+
+  getUserNameandPassword() {
+    var usercredentials = {"User": "$username", "password": "$password"};
+    return usercredentials;
   }
 }

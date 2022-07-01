@@ -46,7 +46,7 @@ class ApiServices {
     Map itemGroups = {};
     response = await getResponse(context, 'generic.get_item_groups', body: {});
     itemGroups = jsonDecode(response.body);
-    print(itemGroups);
+    // print(itemGroups);
     return itemGroups;
   }
 
@@ -65,4 +65,35 @@ class ApiServices {
       return response;
     }
   }
+
+  Future getExecutiveList(BuildContext context) async {
+    var response;
+    Map executive = {};
+    response =
+        await getResponse(context, 'generic.get_sales_executives', body: {});
+    executive = jsonDecode(response.body);
+    // print("executive['message']:${executive['message']}");
+
+    return executive['message'];
+  }
+
+  Future getDistributors(BuildContext context) async {
+    var response;
+    Map distributorList = {};
+    response =
+        await getResponse(context, 'distributor.get_distributors', body: {});
+    // print(response);
+    distributorList = jsonDecode(response.body);
+    
+    return distributorList['message'];
+  }
+  Future getRouteList(BuildContext context, selectedDistributor) async {
+    var response;
+    Map routeList = {};
+    response = await getResponse(context, 'distributor.get_distributor_route',
+        body: {'distributor': '$selectedDistributor'});
+    routeList = jsonDecode(response.body);
+    return routeList['message'];
+  }
+  
 }

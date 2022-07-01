@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
@@ -18,9 +19,15 @@ class LoginHome extends StatefulWidget {
 }
 
 class _LoginHomeState extends State<LoginHome> {
-  String? salesPersonName, selectedOrderType, selectedExecutive;
+  String? salesPersonName,
+      selectedOrderType,
+      selectedExecutive,
+      selectedRoute,
+      selectedDistributor;
   int? userType;
   List? listofOrderType = [];
+  List executives = [];
+  List routeList = [];
   var distributorList = [];
   @override
   void initState() {
@@ -80,15 +87,24 @@ class _LoginHomeState extends State<LoginHome> {
       // User is an executive
       case 0:
         {
+          getExecutiveList(context);
           return Expanded(
               flex: 10,
               child: Container(
-                padding: EdgeInsets.all(5),
+                padding: EdgeInsets.all(10),
+                child: Column(children: [
+                  distributorDropDown(),
+                  routeDropDown(),
+                  navigationCards()
+                ]),
               ));
         }
       // user is an officer
       case 1:
         {
+          getExecutiveList(context);
+          getDistributorsList();
+          getRouteList();
           return Expanded(
               flex: 10,
               child: Container(
@@ -99,7 +115,6 @@ class _LoginHomeState extends State<LoginHome> {
                       Padding(padding: EdgeInsets.all(10)),
                       executiveDropDown(),
                       officersMenuDisplay(),
-
                       Row(
                         children: [
                           Expanded(
@@ -163,7 +178,6 @@ class _LoginHomeState extends State<LoginHome> {
             if (selectedOrderType == 'Shop Order') {
               MyApp().saveOrderType(0);
             }
-            print(selectedOrderType);
           });
         },
       ),
@@ -171,6 +185,7 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Widget executiveDropDown() {
+    // getExecutiveList(context);
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -189,7 +204,7 @@ class _LoginHomeState extends State<LoginHome> {
         underline: Container(),
         hint: Center(child: Text('Select Executive')),
         isExpanded: true,
-        items: distributorList
+        items: executives
             .map((e) => DropdownMenuItem(
                   value: e,
                   child: Text(
@@ -202,16 +217,9 @@ class _LoginHomeState extends State<LoginHome> {
         onChanged: (value) {
           setState(() {
             selectedExecutive = value!.toString();
-            if (selectedOrderType == 'Distributor Order') {
-              MyApp().saveOrderType(1);
-            }
-            if (selectedOrderType == 'Shop Order') {
-              MyApp().saveOrderType(0);
-            }
-            print(selectedOrderType);
           });
         },
-        value: selectedOrderType,
+        value: selectedExecutive,
       ),
     );
   }
@@ -247,22 +255,16 @@ class _LoginHomeState extends State<LoginHome> {
             .toList(),
         onChanged: (value) {
           setState(() {
-            selectedOrderType = value!.toString();
-            if (selectedOrderType == 'Distributor Order') {
-              MyApp().saveOrderType(1);
-            }
-            if (selectedOrderType == 'Shop Order') {
-              MyApp().saveOrderType(0);
-            }
-            print(selectedOrderType);
+            selectedDistributor = value!.toString();
           });
         },
-        value: selectedOrderType,
+        value: selectedDistributor,
       ),
     );
   }
 
   Widget routeDropDown() {
+    getRouteList();
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -280,7 +282,7 @@ class _LoginHomeState extends State<LoginHome> {
         underline: Container(),
         hint: Center(child: Text('Select Route')),
         isExpanded: true,
-        items: distributorList
+        items: routeList
             .map((e) => DropdownMenuItem(
                   value: e,
                   child: Text(
@@ -292,17 +294,10 @@ class _LoginHomeState extends State<LoginHome> {
             .toList(),
         onChanged: (value) {
           setState(() {
-            selectedOrderType = value!.toString();
-            if (selectedOrderType == 'Distributor Order') {
-              MyApp().saveOrderType(1);
-            }
-            if (selectedOrderType == 'Shop Order') {
-              MyApp().saveOrderType(0);
-            }
-            print(selectedOrderType);
+            selectedRoute = value.toString();
           });
         },
-        value: selectedOrderType,
+        value: selectedRoute,
       ),
     );
   }
@@ -433,5 +428,38 @@ class _LoginHomeState extends State<LoginHome> {
     } else {
       return Padding(padding: EdgeInsets.all(10));
     }
+  }
+
+  void getExecutiveList(BuildContext context) {
+    ApiServices().getExecutiveList(context).then((value) {
+      if (executives.length != 0) {
+        executives.clear();
+      }
+      for (var i in value['sales_executives']) {
+        executives.add(i['name']);
+      }
+    });
+    setState(() {});
+    ;
+  }
+
+  Future getDistributorsList() async {
+    ApiServices().getDistributors(context).then((value) {
+      distributorList.clear();
+      for (var i in value['distributors']) {
+        distributorList.add(i['name']);
+      }
+      print(value['distributors']);
+    });
+  }
+
+  Future getRouteList() async {
+    ApiServices().getRouteList(context, selectedDistributor).then((value) {
+      routeList.clear();
+      for (var i in value['routes']) {
+        routeList.add(i['route']);
+      }
+    });
+    setState(() {});
   }
 }

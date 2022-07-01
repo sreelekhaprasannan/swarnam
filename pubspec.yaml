@@ -53,6 +53,10 @@ dependencies:
   google_fonts: ^2.3.2
   # for tab
   get: ^4.6.5
+  # for Database
+  sqflite: ^2.0.2+1
+  # for path Povider
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:
