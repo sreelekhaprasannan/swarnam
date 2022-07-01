@@ -105,6 +105,7 @@ class ApiServices {
     response = await getResponse(context, 'shop.get_route_shop',
         body: {'route': '$route'});
     result = jsonDecode(response.body);
+
     return result['message'];
   }
 }

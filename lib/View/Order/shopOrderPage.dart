@@ -116,9 +116,12 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                         .appTextColorViolet)),
                                         onPressed: () {
                                           MyApp().saveShopDetails(
-                                              shopList[index]['name'],
-                                              shopList[index]['branch'],
-                                              shopList[index]['mobile_number']);
+                                              shopList[index]['name']
+                                                  .toString(),
+                                              shopList[index]['branch']
+                                                  .toString(),
+                                              shopList[index]['mobile_number']
+                                                  .toString());
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(

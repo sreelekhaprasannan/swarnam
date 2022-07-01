@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:swarnamordermanagement/main.dart';
 
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
@@ -14,6 +15,14 @@ class NewOrderShop extends StatefulWidget {
 }
 
 class _NewOrderShopState extends State<NewOrderShop> {
+  Map shopDetais = {};
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getShopDetails();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,9 +74,15 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppWidgets().text(text: 'Name', textsize: 16),
-                                  AppWidgets()
-                                      .text(text: 'mobile', textsize: 14),
+                                  AppWidgets().text(
+                                      text: '${shopDetais['shop_name']}',
+                                      textsize: 16),
+                                  AppWidgets().text(
+                                      text: '${shopDetais['branch']}',
+                                      textsize: 14),
+                                  AppWidgets().text(
+                                      text: '${shopDetais['mobile']}',
+                                      textsize: 14),
                                 ]),
                           ),
                           flex: 5,
@@ -78,35 +93,21 @@ class _NewOrderShopState extends State<NewOrderShop> {
                 ],
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child:
-                          AppWidgets().text(text: 'order id : ', textsize: 14),
-                    ),
-                    Expanded(
-                      child: AppWidgets().text(text: 'Total : ', textsize: 14),
-                    )
-                  ],
-                ),
-              ),
-            ),
+            Padding(padding: EdgeInsets.all(5)),
             Row(
               children: [
                 Expanded(
                     child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                App_Colors().appTextColorViolet)),
                         onPressed: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: ((context) => ItemOrderPage())));
                         },
-                        child: Text('ORDERS')))
+                        child: Text('ORDER')))
               ],
             ),
             Expanded(
@@ -124,8 +125,20 @@ class _NewOrderShopState extends State<NewOrderShop> {
 
   getFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: () {},
+      backgroundColor: App_Colors().appTextColorViolet,
+      onPressed: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ItemOrderPage()));
+      },
       child: Icon(Icons.add),
     );
+  }
+
+  Future getShopDetails() async {
+    await MyApp().getShopDetails().then((value) {
+      shopDetais = value;
+      print(shopDetais);
+    });
+    setState(() {});
   }
 }
