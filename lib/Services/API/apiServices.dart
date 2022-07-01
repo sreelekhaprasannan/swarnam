@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import '../../Model/Api/loginApiModel.dart';
 import '../../View/Login/loginScreen.dart';
 import '../../main.dart';
@@ -84,9 +85,10 @@ class ApiServices {
         await getResponse(context, 'distributor.get_distributors', body: {});
     // print(response);
     distributorList = jsonDecode(response.body);
-    
+
     return distributorList['message'];
   }
+
   Future getRouteList(BuildContext context, selectedDistributor) async {
     var response;
     Map routeList = {};
@@ -95,12 +97,14 @@ class ApiServices {
     routeList = jsonDecode(response.body);
     return routeList['message'];
   }
-  Future getShopList(BuildContext context,route)async{
+
+  Future getShopList(BuildContext context, route) async {
     var response;
-    Map shopList = {};
+    Map result = {};
+
     response = await getResponse(context, 'shop.get_route_shop',
         body: {'route': '$route'});
-    shopList = jsonDecode(response.body);
-    return shopList['shops'];
+    result = jsonDecode(response.body);
+    return result['message'];
   }
 }

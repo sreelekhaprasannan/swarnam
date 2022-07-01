@@ -5,14 +5,14 @@ import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Order/itemOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 
-class NewOrderPage extends StatefulWidget {
-  const NewOrderPage({Key? key}) : super(key: key);
+class NewOrderDistributor extends StatefulWidget {
+  const NewOrderDistributor({Key? key}) : super(key: key);
 
   @override
-  State<NewOrderPage> createState() => _NewOrderPageState();
+  State<NewOrderDistributor> createState() => _NewOrderDistributorState();
 }
 
-class _NewOrderPageState extends State<NewOrderPage> {
+class _NewOrderDistributorState extends State<NewOrderDistributor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +85,8 @@ class _NewOrderPageState extends State<NewOrderPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: AppWidgets().text(text: 'mobile', textsize: 14),
+                      child:
+                          AppWidgets().text(text: 'Order id : ', textsize: 14),
                     ),
                     Expanded(
                       child: AppWidgets().text(text: 'mobile', textsize: 14),
@@ -116,6 +117,14 @@ class _NewOrderPageState extends State<NewOrderPage> {
           ],
         ),
       )),
+      floatingActionButton: getFloatingActionButton(),
+    );
+  }
+
+  getFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {},
+      child: Icon(Icons.add),
     );
   }
 }

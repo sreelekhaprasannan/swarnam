@@ -146,6 +146,24 @@ class MyApp extends StatelessWidget {
         await prf_selectedDistributor.getString('Distributor');
   }
 
+  Future saveShopDetails(shop_name, branch, mobile) async {
+    var prf_shopname = await SharedPreferences.getInstance();
+    await prf_shopname.setString('Shop_name', shop_name);
+    var prf_branch = await SharedPreferences.getInstance();
+    prf_branch.setString('Branch', branch);
+    var prf_mobile = await SharedPreferences.getInstance();
+    prf_mobile.setString('Mobile', mobile);
+  }
+
+  Future getShopDetails() async {
+    var shopName, branch, mobileno;
+    var prf_shopDetails = await SharedPreferences.getInstance();
+    shopName = prf_shopDetails.getString('Shop_name');
+    branch = prf_shopDetails.getString('Branch');
+    mobileno = prf_shopDetails.getString('Mobile');
+    return {"shop_name": shopName, "branch": branch, "mobile": mobileno};
+  }
+
   Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;

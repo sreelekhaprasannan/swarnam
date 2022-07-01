@@ -171,8 +171,10 @@ class LoginScreenState extends State<LoginScreen> {
                                 : Color.fromARGB(255, 2, 92, 29)),
                         borderRadius: BorderRadius.all(Radius.circular(35))),
                     focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 2, 92, 29)),
+                        borderSide: BorderSide(
+                            color: iswrongCredential
+                                ? Colors.red
+                                : Color.fromARGB(255, 2, 92, 29)),
                         borderRadius: BorderRadius.all(Radius.circular(35))),
                     hintText: 'Password',
                     suffixIcon: IconButton(
@@ -214,7 +216,7 @@ class LoginScreenState extends State<LoginScreen> {
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
                                 App_Colors().appTextColorYellow))))),
-            SizedBox(height: 20, child: loadingindicator())
+            SizedBox(height: 120, child: loadingindicator())
           ]),
         ));
   }
@@ -222,8 +224,9 @@ class LoginScreenState extends State<LoginScreen> {
   loadingindicator() {
     Widget? widget;
     if (isloading) {
-      widget =
-          CircularProgressIndicator(color: App_Colors().appTextColorYellow);
+      widget = Center(
+          child: CircularProgressIndicator(
+              color: App_Colors().appTextColorYellow));
       setState(() {});
     } else {
       widget = Container();
@@ -235,12 +238,15 @@ class LoginScreenState extends State<LoginScreen> {
 
   loginbuttonPressed() async {
     var userType, token, salesPerson;
+    setState(() {
+      isloading = true;
+    });
     saveUsenameandPassword();
+
     await ApiServices()
         .Login(usernameController.text, passwordController.text)
         .then((value) async {
       if (value['success']) {
-        isloading = false;
         iswrongCredential = false;
         userType = value['user_type'];
         token = value['token'];
@@ -266,7 +272,9 @@ class LoginScreenState extends State<LoginScreen> {
         await EasyLoading.showToast('${value['message']}',
             toastPosition: EasyLoadingToastPosition.bottom);
         print('message : ${value['message']}');
-        setState(() {});
+        setState(() {
+          isloading = false;
+        });
       }
     });
     //   setState(() {});

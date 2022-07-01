@@ -6,7 +6,7 @@ import 'package:swarnamordermanagement/View/Order/itemOrderPage.dart';
 
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
-import 'newOrderPage.dart';
+import 'newDistributorOrderPage.dart';
 
 class DisributorOrderPage extends StatefulWidget {
   const DisributorOrderPage({Key? key}) : super(key: key);
@@ -106,7 +106,7 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                               context,
                                               MaterialPageRoute(
                                                   builder: ((context) =>
-                                                      NewOrderPage())));
+                                                      NewOrderDistributor())));
                                         },
                                         child: AppWidgets().text(
                                             textsize: 12,

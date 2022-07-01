@@ -413,6 +413,9 @@ class _LoginHomeState extends State<LoginHome> {
       listofOrderType = ['Distributor Order', 'Shop Order'];
       selectedOrderType = listofOrderType![0];
     }
+    if (selectedOrderType == "Distributor Order") {
+      getExecutiveList(context);
+    }
 
     setState(() {});
   }
@@ -441,7 +444,11 @@ class _LoginHomeState extends State<LoginHome> {
       for (var i in value['sales_executives']) {
         executives.add(i['name']);
       }
+      setState(() {});
     });
+    if (selectedOrderType == 'Shop Order') {
+      getDistributorsList();
+    }
     setState(() {});
     ;
   }
@@ -452,7 +459,9 @@ class _LoginHomeState extends State<LoginHome> {
       for (var i in value['distributors']) {
         distributorList.add(i['name']);
       }
-      print(value['distributors']);
+      if (selectedOrderType == 'Shop Order') {
+        getRouteList();
+      }
     });
   }
 

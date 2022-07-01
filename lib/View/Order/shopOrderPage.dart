@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
+import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
@@ -80,15 +82,16 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AppWidgets().text(
-                                        text: 'Shop Name',
+                                        text: '${shopList[index]['name']}',
                                         textsize: 20,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
-                                        text: 'Branch',
+                                        text: '${shopList[index]['branch']}',
                                         textsize: 18,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
-                                        text: 'Mobile Number',
+                                        text:
+                                            '${shopList[index]['mobile_number']}',
                                         textsize: 14,
                                         color: App_Colors().appTextColorViolet),
                                     Padding(padding: EdgeInsets.all(5))
@@ -111,7 +114,17 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                 MaterialStateProperty.all(
                                                     App_Colors()
                                                         .appTextColorViolet)),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          MyApp().saveShopDetails(
+                                              shopList[index]['name'],
+                                              shopList[index]['branch'],
+                                              shopList[index]['mobile_number']);
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      NewOrderShop()));
+                                        },
                                         child: AppWidgets().text(
                                             textsize: 12,
                                             text: 'ORDER',
@@ -136,6 +149,8 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
     await MyApp().getSelectedRoute().then((value) => route = value);
     await ApiServices().getShopList(context, route).then((value) {
       print(value);
+      shopList = value['shops'];
     });
+    setState(() {});
   }
 }
