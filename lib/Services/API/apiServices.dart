@@ -95,5 +95,12 @@ class ApiServices {
     routeList = jsonDecode(response.body);
     return routeList['message'];
   }
-  
+  Future getShopList(BuildContext context,route)async{
+    var response;
+    Map shopList = {};
+    response = await getResponse(context, 'shop.get_route_shop',
+        body: {'route': '$route'});
+    shopList = jsonDecode(response.body);
+    return shopList['shops'];
+  }
 }

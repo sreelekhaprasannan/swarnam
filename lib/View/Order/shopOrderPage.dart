@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
+import 'package:swarnamordermanagement/main.dart';
 
 class ShopOrderPage extends StatefulWidget {
   const ShopOrderPage({Key? key}) : super(key: key);
@@ -13,6 +15,15 @@ class ShopOrderPage extends StatefulWidget {
 }
 
 class _ShopOrderPageState extends State<ShopOrderPage> {
+  List shopList = [];
+  String? executive, distributor, route;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getshopList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +66,7 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                 margin: EdgeInsets.only(top: 10),
                 padding: EdgeInsets.all(5),
                 child: ListView.builder(
-                    itemCount: 15,
+                    itemCount: shopList.length,
                     itemBuilder: ((context, index) {
                       return Container(
                         padding: EdgeInsets.all(15),
@@ -117,5 +128,14 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
         ],
       )),
     );
+  }
+
+  Future getshopList() async {
+    await MyApp().getSelectedExecutive().then((value) => executive = value);
+    await MyApp().getSelectedDistributor().then((value) => distributor = value);
+    await MyApp().getSelectedRoute().then((value) => route = value);
+    await ApiServices().getShopList(context, route).then((value) {
+      print(value);
+    });
   }
 }

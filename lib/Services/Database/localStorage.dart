@@ -7,11 +7,15 @@ class LocalStorage {
         openDatabase(path.join(await getDatabasesPath(), 'swaranamDB.db'),
             onCreate: (db, version) async {
       await db.execute(
-          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_name TEXT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT)");
+          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_name TEXT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT)");
       await db.execute(
           "CREATE TABLE itemsorderlistdistributor(id INTEGER PRIMARY KEY AUTOINCREMENT,distributor_name TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT)");
-      // await db.execute("CREATE TABLE swarnam_offlinedb(shop Text,branch TEXT,Mobile TEXT,distributor Text,route TEXT)");
-      // await db.execute("CREATE TABLE swarnam_ofline_itemdb(item_code TEXT,item_name TEXT,item_group TEXT,rate TEXT)");
+      await db.execute(
+          "CREATE TABLE distributor_detais(distributor_code TEXT,name TEXT,mobile TEXT,executive TEXT);");
+      await db.execute(
+          "CREATE TABLE item_deiais(item_code TEXT,item_name TEXT,item_group TEXT,item_price TEXT)");
+      await db.execute(
+          "CREATE TABLE shop_details(shop_code TEXT,name TEXT,branch TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
     }, version: 1);
     return swarnamDB;
   }

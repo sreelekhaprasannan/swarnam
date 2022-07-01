@@ -215,6 +215,7 @@ class _LoginHomeState extends State<LoginHome> {
                 ))
             .toList(),
         onChanged: (value) {
+          MyApp().saveSelectedExecutive(value.toString());
           setState(() {
             selectedExecutive = value!.toString();
           });
@@ -254,6 +255,7 @@ class _LoginHomeState extends State<LoginHome> {
                 ))
             .toList(),
         onChanged: (value) {
+          MyApp().saveSelectedDistributor(value.toString());
           setState(() {
             selectedDistributor = value!.toString();
           });
@@ -293,6 +295,7 @@ class _LoginHomeState extends State<LoginHome> {
                 ))
             .toList(),
         onChanged: (value) {
+          MyApp().saveSelectedRoute(value.toString());
           setState(() {
             selectedRoute = value.toString();
           });

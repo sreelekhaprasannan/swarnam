@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -110,6 +112,38 @@ class MyApp extends StatelessWidget {
     var prf_person = await SharedPreferences.getInstance();
     String? person = prf_person.getString('Name');
     return person;
+  }
+
+  Future saveSelectedRoute(String route) async {
+    var prefSelectedRoute = await SharedPreferences.getInstance();
+    await prefSelectedRoute.setString('route', route);
+  }
+
+  Future getSelectedRoute() async {
+    var prf_selectedRoute = await SharedPreferences.getInstance();
+    String? route = await prf_selectedRoute.getString('route');
+    return route;
+  }
+
+  Future saveSelectedExecutive(String executive) async {
+    var prf_SelectedExcutive = await SharedPreferences.getInstance();
+    await prf_SelectedExcutive.setString('Executive', executive);
+  }
+
+  Future getSelectedExecutive() async {
+    var prf_selectedExecutive = await SharedPreferences.getInstance();
+    String? executive = await prf_selectedExecutive.getString('Executive');
+  }
+
+  Future saveSelectedDistributor(distributor) async {
+    var prf_SelectedDistributor = await SharedPreferences.getInstance();
+    await prf_SelectedDistributor.setString('Distributor', distributor);
+  }
+
+  Future getSelectedDistributor() async {
+    var prf_selectedDistributor = await SharedPreferences.getInstance();
+    String? disrtributor =
+        await prf_selectedDistributor.getString('Distributor');
   }
 
   Future<Position> determinePosition() async {
