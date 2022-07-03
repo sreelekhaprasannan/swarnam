@@ -124,6 +124,16 @@ class MyApp extends StatelessWidget {
     String? route = await prf_selectedRoute.getString('route');
     return route;
   }
+   Future saveAttendaceStatus(int attendanceStatus) async {
+    var prefSelectedRoute = await SharedPreferences.getInstance();
+    await prefSelectedRoute.setInt('Attendance', attendanceStatus);
+  }
+
+  Future getAttendaceStatus() async {
+    var prf_selectedRoute = await SharedPreferences.getInstance();
+    int? attendanceStatus = await prf_selectedRoute.getInt('Attendance');
+    return attendanceStatus;
+  }
 
   Future saveSelectedExecutive(String executive) async {
     var prf_SelectedExcutive = await SharedPreferences.getInstance();

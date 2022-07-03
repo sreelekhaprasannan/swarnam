@@ -1,18 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 
+import '../../main.dart';
+
 class AppWidgets extends StatefulWidget {
-  int attendanceStatus = 2;
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
+
     throw UnimplementedError();
   }
 
-  appBar(context) {
+  appBar(context, attendanceStatus) {
     return Container(
       padding: EdgeInsets.only(left: 2, right: 5),
       height: MediaQuery.of(context).size.height / 20,
@@ -25,23 +30,28 @@ class AppWidgets extends StatefulWidget {
               Icons.settings,
               color: App_Colors().appTextColorYellow,
             )),
-        IconButton(onPressed: () {}, icon: getAttendanceIcon(context)),
+        IconButton(
+            onPressed: () async {
+              attendanceStatus = await markAttendance(context);
+            },
+            icon: getAttendanceIcon(context, attendanceStatus)),
       ]),
     );
   }
 
-  getAttendanceIcon(context) {
-    if (attendanceStatus == 0) {
-      return attendanceIcon(
-          context, FontAwesomeIcons.userXmark, App_Colors().appRed);
-    }
+  Widget getAttendanceIcon(context, attendanceStatus) {
     if (attendanceStatus == 1) {
+      // late Attendance
       return attendanceIcon(
           context, FontAwesomeIcons.userClock, App_Colors().appLightBlue);
-    }
-    if (attendanceStatus == 2) {
+    } else if (attendanceStatus == 2) {
+      // Present
       return attendanceIcon(
           context, FontAwesomeIcons.userCheck, App_Colors().appLightGreen);
+    } else {
+      // Absent
+      return attendanceIcon(
+          context, FontAwesomeIcons.userXmark, App_Colors().appRed);
     }
   }
 
@@ -73,5 +83,19 @@ class AppWidgets extends StatefulWidget {
           fontSize: textsize, color: color, fontWeight: fontWeight),
       maxLines: maxLines,
     );
+  }
+
+  markAttendance(context) async {
+    var status;
+    await MyApp().determinePosition();
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    await ApiServices().markAttendence(context, position).then((value) {
+      status = value['attendance'];
+      MyApp().saveAttendaceStatus(status);
+      EasyLoading.showToast('${value['message']}',
+          duration: Duration(seconds: 1));
+    });
+    return status;
   }
 }

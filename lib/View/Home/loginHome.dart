@@ -29,12 +29,14 @@ class _LoginHomeState extends State<LoginHome> {
   List executives = [];
   List routeList = [];
   var distributorList = [];
+  var attendanceStatus;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getSallesPerson();
     getUserType();
+    getAttendanceStatus();
   }
 
   @override
@@ -45,7 +47,7 @@ class _LoginHomeState extends State<LoginHome> {
           color: App_Colors().appWhite,
           child: Column(
             children: [
-              AppWidgets().appBar(context),
+              AppWidgets().appBar(context, attendanceStatus),
               Expanded(
                 child: Container(
                     margin: EdgeInsets.only(left: 15, right: 15),
@@ -472,6 +474,15 @@ class _LoginHomeState extends State<LoginHome> {
         routeList.add(i['route']);
       }
     });
+    setState(() {});
+  }
+
+  getAttendanceStatus() async{
+   await MyApp().getAttendaceStatus().then((value) {
+    if(value==null||value==''){
+      attendanceStatus = 0;
+    }else
+    {attendanceStatus = value;}});
     setState(() {});
   }
 }

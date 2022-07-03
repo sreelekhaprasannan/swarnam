@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import '../../Model/Api/loginApiModel.dart';
@@ -60,6 +61,7 @@ class ApiServices {
     response = await http.post(url, headers: headers, body: jsonEncode(body));
     if (response.statusCode == 403) {
       // MyApp().savePage('LoginScreen1()');
+      MyApp().saveAttendaceStatus(0);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => LoginScreen()));
     } else {
@@ -108,4 +110,26 @@ class ApiServices {
 
     return result['message'];
   }
+
+  getAttendanceStatus(BuildContext context) async {
+    var response;
+    var attendenceStatus;
+    response = await getResponse(context, 'generic.get_attendance_status');
+    attendenceStatus = jsonDecode(response.body);
+    return attendenceStatus['message'];
+  }
+
+  Future markAttendence(BuildContext context, Position position) async {
+    var response;
+    var attendencedetails;
+    response = await getResponse(context, 'generic.mark_attendance', body: {
+      'longitude': '${position.longitude}',
+      'latitude': '${position.latitude}'
+    });
+    attendencedetails = jsonDecode(response.body);
+    print(attendencedetails['message']);
+    return attendencedetails['message'];
+  }
+
+  getItemList(BuildContext context, String? selectedItemGroup) {}
 }
