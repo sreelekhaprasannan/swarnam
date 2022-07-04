@@ -21,12 +21,15 @@ class ItemOrderPage extends StatefulWidget {
 
 List itemGroupList = [];
 
-class ItemOrderPageState extends State<ItemOrderPage> {
+class ItemOrderPageState extends State<ItemOrderPage>
+    with TickerProviderStateMixin {
   // List itemOrderList = [];
 
   List itemList = [];
   int? userType;
   int? orderType;
+  var tabindex;
+  late TabController tabController;
   String? selectedItemGroup, shopName, distributorName, shop_code;
   List<TextEditingController> qtyController = [];
   ItemGroupTabsController titleTab = Get.put(ItemGroupTabsController());
@@ -40,6 +43,12 @@ class ItemOrderPageState extends State<ItemOrderPage> {
     getUserType();
     getOrderType();
     // getItemList();
+    tabController = TabController(length: itemGroupList.length, vsync: this);
+    tabController.addListener(() {
+      setState(() {
+        tabindex = tabController.index;
+      });
+    });
   }
 
   @override
@@ -69,9 +78,10 @@ class ItemOrderPageState extends State<ItemOrderPage> {
             Expanded(
               flex: 1,
               child: TabBar(
+                labelStyle: TextStyle(color: Colors.black),
                 isScrollable: true,
                 tabs: titleTab.itemGroupTabs,
-                controller: titleTab.tabController,
+                controller: tabController,
                 onTap: (index) {
                   selectedItemGroup = itemGroupList[index].toString();
                   getItemList();
@@ -82,7 +92,7 @@ class ItemOrderPageState extends State<ItemOrderPage> {
             Expanded(
               flex: 10,
               child: TabBarView(
-                controller: titleTab.tabController,
+                controller: tabController,
                 children: titleTab.itemGroupTabs.map((Tab tab) {
                   String tablabel = tab.text!;
                   return Container(
@@ -143,118 +153,9 @@ class ItemOrderPageState extends State<ItemOrderPage> {
                   );
                 }).toList(),
               ),
-              // child: Container(
-              //   margin: EdgeInsets.only(left: 8, right: 8),
-              //   child: Column(
-              //     children: [
-              //       Expanded(
-              //         // flex: 2,
-              //         child: Container(
-              //           padding: EdgeInsets.all(5),
-              //           // height: MediaQuery.of(context).size.height / ,
-              //           decoration: BoxDecoration(
-              //               color: App_Colors().appLightBlue,
-              //               borderRadius: BorderRadius.circular(25)),
-              //           child: DropdownButton(
-              //               hint: Center(child: Text('Select Item')),
-              //               underline: Container(),
-              //               dropdownColor: App_Colors().appBackground1,
-              //               elevation: 10,
-              //               isExpanded: true,
-              //               items: itemGroupList
-              //                   .map((e) => DropdownMenuItem(
-              //                         value: e,
-              //                         child: Text(
-              //                           e,
-              //                           maxLines: 1,
-              //                         ),
-              //                         alignment: Alignment.center,
-              //                       ))
-              //                   .toList(),
-              //               onChanged: (value) {
-              //                 setState(() {
-              //                   selectedItemGroup = value.toString();
-              //                   getItemList();
-              //                 });
-              //               },
-              //               value: selectedItemGroup),
-              //         ),
-              //       ),
-              //       Padding(padding: EdgeInsets.all(5)),
-              //       Expanded(
-              //         // flex: 1,
-              //         child: Row(children: [
-              //           rowHead('   Item ', 4),
-              //           rowHead('Rate', 3),
-              //           rowHead('Qty', 2)
-              //         ]),
-              //       ),
-              //       //     // Padding(padding: EdgeInsets.all(5)),
-              //       Expanded(
-              //           flex: 10,
-              //           child: ListView.builder(
-              //               itemCount: itemList.length,
-              //               itemBuilder: ((context, index) {
-              //                 getTextEditingControllerList();
-              //                 return Container(
-              //                   color: App_Colors().appBackground1,
-              //                   padding: EdgeInsets.all(8),
-              //                   height: MediaQuery.of(context).size.height / 8,
-              //                   child: Column(children: [
-              //                     Expanded(
-              //                       flex: 5,
-              //                       child: Row(
-              //                         children: [
-              //                           Expanded(
-              //                               flex: 4,
-              //                               child: Container(
-              //                                 child: Text(
-              //                                   '${itemList[index]['item_name']}',
-              //                                   style: GoogleFonts.notoSans(
-              //                                       fontSize: 16),
-              //                                 ),
-              //                               )),
-              //                           Expanded(
-              //                               flex: 3,
-              //                               child: Container(
-              //                                 alignment: Alignment.centerRight,
-              //                                 child: Text(
-              //                                   '${itemList[index]['rate']}',
-              //                                   style: GoogleFonts.notoSans(
-              //                                       fontSize: 18),
-              //                                 ),
-              //                               )),
-              //                           Padding(
-              //                               padding: EdgeInsets.all(
-              //                                   MediaQuery.of(context)
-              //                                           .size
-              //                                           .width /
-              //                                       12)),
-              //                           Expanded(
-              //                             flex: 2,
-              //                             child: Container(
-              //                               child: TextFormField(
-              //                                 controller: qtyController[index],
-              //                                 keyboardType: TextInputType.number,
-              //                                 decoration: InputDecoration(
-              //                                   border: OutlineInputBorder(),
-              //                                 ),
-              //                               ),
-              //                             ),
-              //                           )
-              //                         ],
-              //                       ),
-              //                     )
-              //                   ]),
-              //                 );
-              //               }))),
-              //     ],
-              //   ),
-              // ),
+              
             ),
-            // Expanded(
-            //     flex: 10,
-            //     child: ),
+            
             Expanded(
               // flex: 2,
               child: Container(
@@ -306,7 +207,8 @@ class ItemOrderPageState extends State<ItemOrderPage> {
 
     setState(() {
       // titleTab.onInit();
-      titleTab.getTabInitialized();
+      tabController = TabController(length: itemGroupList.length, vsync: this);
+      // titleTab.getTabInitialized();
     });
   }
 
@@ -405,6 +307,7 @@ class ItemGroupTabsController extends GetxController
   }
 
   getTabInitialized() {
+    tabController!.addListener(() {});
     tabController = TabController(length: itemGroupList.length, vsync: this);
     // itemGroupTabs.clear();
     // for (var name in itemGroupList) {

@@ -6,6 +6,7 @@ import 'package:swarnamordermanagement/main.dart';
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
 import 'itemOrderPage.dart';
+import 'itemOrderPage1.dart';
 
 class NewOrderShop extends StatefulWidget {
   const NewOrderShop({Key? key}) : super(key: key);
@@ -105,7 +106,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: ((context) => ItemOrderPage())));
+                                  builder: ((context) => ItemOrderPage1())));
                         },
                         child: Text('ORDER')))
               ],
@@ -128,7 +129,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
       backgroundColor: App_Colors().appTextColorViolet,
       onPressed: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ItemOrderPage()));
+            context, MaterialPageRoute(builder: (context) => ItemOrderPage1()));
       },
       child: Icon(Icons.add),
     );

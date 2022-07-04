@@ -250,7 +250,7 @@ class LoginScreenState extends State<LoginScreen> {
         iswrongCredential = false;
         userType = value['user_type'];
         token = value['token'];
-        MyApp().saveUserType(userType);
+        await MyApp().saveUserType(userType);
         MyApp().saveToken(token);
         MyApp().saveSalesPerson(value['sales_person']);
         Navigator.of(context).pushReplacement(PageRouteBuilder(

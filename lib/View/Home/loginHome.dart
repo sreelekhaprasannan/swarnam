@@ -139,7 +139,10 @@ class _LoginHomeState extends State<LoginHome> {
                   )));
         }
       default:
-        return Expanded(flex: 10, child: Container());
+        {
+          getUserType();
+          return Expanded(flex: 10, child: Container());
+        }
     }
   }
 
@@ -320,10 +323,19 @@ class _LoginHomeState extends State<LoginHome> {
                     'lib/Images/ordericon.png', 'ORDER', App_Colors().appWhite),
                 onTap: () {
                   if (selectedOrderType == 'Shop Order') {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ShopOrderPage()));
+                    if (selectedDistributor == '' ||
+                        selectedDistributor == null) {
+                      EasyLoading.showToast('Select Distributor',
+                          duration: Duration(seconds: 1));
+                    } else if (selectedRoute == '' || selectedRoute == null) {
+                      EasyLoading.showToast('Select Route',
+                          duration: Duration(seconds: 1));
+                    } else {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ShopOrderPage()));
+                    }
                   }
                   if (selectedOrderType == 'Distributor Order') {
                     Navigator.push(

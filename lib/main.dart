@@ -70,7 +70,7 @@ Future getLocation() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  void saveUserType(userType) async {
+  Future saveUserType(userType) async {
     var prefUser = await SharedPreferences.getInstance();
     await prefUser.setInt('User', userType);
   }
@@ -124,7 +124,8 @@ class MyApp extends StatelessWidget {
     String? route = await prf_selectedRoute.getString('route');
     return route;
   }
-   Future saveAttendaceStatus(int attendanceStatus) async {
+
+  Future saveAttendaceStatus(int attendanceStatus) async {
     var prefSelectedRoute = await SharedPreferences.getInstance();
     await prefSelectedRoute.setInt('Attendance', attendanceStatus);
   }

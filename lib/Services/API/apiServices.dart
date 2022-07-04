@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
@@ -58,9 +59,15 @@ class ApiServices {
     var response;
     await getToken();
     var url = Uri.parse('$urlHead' + '$pathname' + '$endpoint');
-    response = await http.post(url, headers: headers, body: jsonEncode(body));
+    try {
+      response = await http.post(url, headers: headers, body: jsonEncode(body));
+    } catch (e) {
+      EasyLoading.showToast('Connection Error!!!',
+          duration: Duration(seconds: 1));
+    }
     if (response.statusCode == 403) {
       // MyApp().savePage('LoginScreen1()');
+      // _SimpleUri (https://swarnam.frappe.cloud/api/method/swarnam.api.v1.generic.get_sales_executives)
       MyApp().saveAttendaceStatus(0);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => LoginScreen()));
@@ -87,7 +94,7 @@ class ApiServices {
         await getResponse(context, 'distributor.get_distributors', body: {});
     // print(response);
     distributorList = jsonDecode(response.body);
-    print(response.body);
+    // print(response.body);
 
     return distributorList['message'];
   }
@@ -132,5 +139,12 @@ class ApiServices {
     return attendencedetails['message'];
   }
 
-  getItemList(BuildContext context, String? selectedItemGroup) {}
+  getItemList(BuildContext context, String? selectedItemGroup) async {
+    Map result = {};
+
+    var response = await getResponse(context, 'generic.get_group_wise_items',
+        body: {'item_group': '$selectedItemGroup'});
+    result = jsonDecode(response.body);
+    return result['message'];
+  }
 }
