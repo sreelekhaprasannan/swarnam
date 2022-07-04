@@ -1,18 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
 class ItemListModel {
-  TextEditingController? qtyController;
+  TextEditingController qtyController=TextEditingController();
   String? item_code;
   String? item_name;
   String? item_qty;
   String? item_price;
   String? item_group;
-  ItemListModel(
+  ItemListModel(this.qtyController,
       {this.item_code,
       this.item_name,
       this.item_qty,
       this.item_price,
-      this.qtyController,
       this.item_group});
   Map<String, dynamic> toMap() {
     return {

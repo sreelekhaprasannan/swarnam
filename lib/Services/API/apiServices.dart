@@ -87,6 +87,7 @@ class ApiServices {
         await getResponse(context, 'distributor.get_distributors', body: {});
     // print(response);
     distributorList = jsonDecode(response.body);
+    print(response.body);
 
     return distributorList['message'];
   }

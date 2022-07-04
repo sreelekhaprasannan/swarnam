@@ -89,13 +89,14 @@ class _LoginHomeState extends State<LoginHome> {
       // User is an executive
       case 0:
         {
-          getExecutiveList(context);
+          selectedOrderType = 'Shop Order';
           return Expanded(
               flex: 10,
               child: Container(
                 padding: EdgeInsets.all(10),
                 child: Column(children: [
                   distributorDropDown(),
+                  Padding(padding: EdgeInsets.all(15)),
                   routeDropDown(),
                   navigationCards()
                 ]),
@@ -105,8 +106,8 @@ class _LoginHomeState extends State<LoginHome> {
       case 1:
         {
           getExecutiveList(context);
-          getDistributorsList();
-          getRouteList();
+          // getDistributorsList();
+          // getRouteList();
           return Expanded(
               flex: 10,
               child: Container(
@@ -228,6 +229,7 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Widget distributorDropDown() {
+    getDistributorsList();
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -452,7 +454,6 @@ class _LoginHomeState extends State<LoginHome> {
       getDistributorsList();
     }
     setState(() {});
-    ;
   }
 
   Future getDistributorsList() async {
@@ -477,12 +478,14 @@ class _LoginHomeState extends State<LoginHome> {
     setState(() {});
   }
 
-  getAttendanceStatus() async{
-   await MyApp().getAttendaceStatus().then((value) {
-    if(value==null||value==''){
-      attendanceStatus = 0;
-    }else
-    {attendanceStatus = value;}});
+  getAttendanceStatus() async {
+    await MyApp().getAttendaceStatus().then((value) {
+      if (value == null || value == '') {
+        attendanceStatus = 0;
+      } else {
+        attendanceStatus = value;
+      }
+    });
     setState(() {});
   }
 }
