@@ -251,8 +251,10 @@ class LoginScreenState extends State<LoginScreen> {
         userType = value['user_type'];
         token = value['token'];
         await MyApp().saveUserType(userType);
-        MyApp().saveToken(token);
-        MyApp().saveSalesPerson(value['sales_person']);
+        await MyApp().saveToken(token);
+        await MyApp().saveSalesPerson(value['sales_person']);
+        await ApiServices().getShopList(context);
+        await ApiServices().getItemList(context);
         Navigator.of(context).pushReplacement(PageRouteBuilder(
             transitionDuration: Duration(milliseconds: 300),
             reverseTransitionDuration: Duration(milliseconds: 300),

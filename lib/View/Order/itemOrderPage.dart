@@ -153,9 +153,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
                   );
                 }).toList(),
               ),
-              
             ),
-            
             Expanded(
               // flex: 2,
               child: Container(
@@ -193,7 +191,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
   void getItemGroupList() async {
     Map result = {};
     if (itemGroupList.isEmpty) {
-      await ApiServices().getItemGroupList(context).then((value) {
+      await LocalStorage().getItemGroupList().then((value) {
         result = value['message'];
         titleTab.itemGroupTabs.clear();
 
@@ -226,7 +224,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
           orderList.item_code = itemList[index]['item_code'];
           orderList.rate = itemList[index]['rate'].toString();
           orderList.qty = qtyController[index].text;
-          await LocalStorage().insertOrderList(itemsOrderListShop: orderList);
+          await LocalStorage().insertToDB(itemsOrderListShop: orderList);
         }
       }
       Navigator.pushReplacement(
@@ -242,8 +240,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
           orderList.item_code = itemList[index]['item_code'];
           orderList.rate = itemList[index]['rate'].toString();
           orderList.qty = qtyController[index].text;
-          await LocalStorage()
-              .insertOrderList(itemOrderListDistributor: orderList);
+          await LocalStorage().insertToDB(itemOrderListDistributor: orderList);
         }
       }
       Navigator.pushReplacement(context,
@@ -252,10 +249,10 @@ class ItemOrderPageState extends State<ItemOrderPage>
   }
 
   void getItemList() async {
-    await ApiServices().getItemList(context, selectedItemGroup).then((value) {
-      // print(value['items']);
-      itemList = value['items'];
-    });
+    // await ApiServices().getItemList(context, selectedItemGroup).then((value) {
+    //   // print(value['items']);
+    //   itemList = value['items'];
+    // });
     setState(() {});
   }
 

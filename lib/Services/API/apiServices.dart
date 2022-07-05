@@ -5,6 +5,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
+import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
+import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import '../../Model/Api/loginApiModel.dart';
 import '../../View/Login/loginScreen.dart';
 import '../../main.dart';
@@ -76,45 +79,48 @@ class ApiServices {
     }
   }
 
-  Future getExecutiveList(BuildContext context) async {
-    var response;
-    Map executive = {};
-    response =
-        await getResponse(context, 'generic.get_sales_executives', body: {});
-    executive = jsonDecode(response.body);
-    // print("executive['message']:${executive['message']}");
-
-    return executive['message'];
-  }
-
-  Future getDistributors(BuildContext context) async {
-    var response;
-    Map distributorList = {};
-    response =
-        await getResponse(context, 'distributor.get_distributors', body: {});
-    // print(response);
-    distributorList = jsonDecode(response.body);
-    // print(response.body);
-
-    return distributorList['message'];
-  }
-
-  Future getRouteList(BuildContext context, selectedDistributor) async {
-    var response;
-    Map routeList = {};
-    response = await getResponse(context, 'distributor.get_distributor_route',
-        body: {'distributor': '$selectedDistributor'});
-    routeList = jsonDecode(response.body);
-    return routeList['message'];
-  }
-
-  Future getShopList(BuildContext context, route) async {
+  Future getShopList(BuildContext context) async {
     var response;
     Map result = {};
+    var li;
+    List<ShopModel> shopList = [];
 
-    response = await getResponse(context, 'shop.get_route_shop',
-        body: {'route': '$route'});
+    response = await getResponse(context, 'shop.get_all_shops', body: {});
     result = jsonDecode(response.body);
+    li = result['message']['shops'];
+    ShopModel shopdetais = ShopModel();
+    shopList.clear();
+    for (var i in li) {
+      shopdetais.shop_code = i['shop_code'].toString();
+      shopdetais.name = i['name'].toString();
+      shopdetais.branch = i['branch'].toString();
+      shopdetais.phone = i['mobile_number'].toString();
+      shopdetais.route = i['route'].toString();
+      shopdetais.distributor = i['distributor'].toString();
+      shopdetais.executive = i['sales_person'].toString();
+      LocalStorage().insertToDB(shoplist: shopdetais);
+      print(shopdetais);
+    }
+
+    return result['message'];
+  }
+
+  getItemList(BuildContext context) async {
+    Map result = {};
+    List<ItemModel> itemList = [];
+    var response =
+        await getResponse(context, 'generic.get_item_master', body: {});
+    result = jsonDecode(response.body);
+    var li = result['message']['items'];
+    ItemModel itemdetais = ItemModel();
+    itemList.clear();
+    for (var i in li) {
+      itemdetais.item_code = i['item_code'].toString();
+      itemdetais.item_name = i['item_name'].toString();
+      itemdetais.item_group = i['item_group'].toString();
+      itemdetais.item_Price = i['rate'];
+      await LocalStorage().insertToDB(itemModel: itemdetais);
+    }
 
     return result['message'];
   }
@@ -124,6 +130,7 @@ class ApiServices {
     var attendenceStatus;
     response = await getResponse(context, 'generic.get_attendance_status');
     attendenceStatus = jsonDecode(response.body);
+    print(attendenceStatus['message']);
     return attendenceStatus['message'];
   }
 
@@ -137,14 +144,5 @@ class ApiServices {
     attendencedetails = jsonDecode(response.body);
     print(attendencedetails['message']);
     return attendencedetails['message'];
-  }
-
-  getItemList(BuildContext context, String? selectedItemGroup) async {
-    Map result = {};
-
-    var response = await getResponse(context, 'generic.get_group_wise_items',
-        body: {'item_group': '$selectedItemGroup'});
-    result = jsonDecode(response.body);
-    return result['message'];
   }
 }

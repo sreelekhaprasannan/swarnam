@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
@@ -105,9 +106,7 @@ class _LoginHomeState extends State<LoginHome> {
       // user is an officer
       case 1:
         {
-          getExecutiveList(context);
-          // getDistributorsList();
-          // getRouteList();
+          getExecutiveList();
           return Expanded(
               flex: 10,
               child: Container(
@@ -220,10 +219,11 @@ class _LoginHomeState extends State<LoginHome> {
                   alignment: Alignment.center,
                 ))
             .toList(),
-        onChanged: (value) {
-          MyApp().saveSelectedExecutive(value.toString());
+        onChanged: (value) async {
+          await MyApp().saveSelectedExecutive(value.toString());
           setState(() {
             selectedExecutive = value!.toString();
+            getDistributorsList(selectedExecutive);
           });
         },
         value: selectedExecutive,
@@ -232,7 +232,6 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Widget distributorDropDown() {
-    getDistributorsList();
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -261,10 +260,11 @@ class _LoginHomeState extends State<LoginHome> {
                   alignment: Alignment.center,
                 ))
             .toList(),
-        onChanged: (value) {
-          MyApp().saveSelectedDistributor(value.toString());
+        onChanged: (value) async {
+          await MyApp().saveSelectedDistributor(value.toString());
           setState(() {
             selectedDistributor = value!.toString();
+            getRouteList(selectedDistributor);
           });
         },
         value: selectedDistributor,
@@ -273,7 +273,6 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Widget routeDropDown() {
-    getRouteList();
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -301,8 +300,8 @@ class _LoginHomeState extends State<LoginHome> {
                   alignment: Alignment.center,
                 ))
             .toList(),
-        onChanged: (value) {
-          MyApp().saveSelectedRoute(value.toString());
+        onChanged: (value) async {
+          await MyApp().saveSelectedRoute(value.toString());
           setState(() {
             selectedRoute = value.toString();
           });
@@ -430,7 +429,7 @@ class _LoginHomeState extends State<LoginHome> {
       selectedOrderType = listofOrderType![0];
     }
     if (selectedOrderType == "Distributor Order") {
-      getExecutiveList(context);
+      getExecutiveList();
     }
 
     setState(() {});
@@ -452,39 +451,37 @@ class _LoginHomeState extends State<LoginHome> {
     }
   }
 
-  void getExecutiveList(BuildContext context) {
-    ApiServices().getExecutiveList(context).then((value) {
+  void getExecutiveList() {
+    LocalStorage().getExecutive().then((value) {
       if (executives.length != 0) {
         executives.clear();
       }
-      for (var i in value['sales_executives']) {
-        executives.add(i['name']);
+      for (var i in value) {
+        executives.add(i);
       }
       setState(() {});
     });
-    if (selectedOrderType == 'Shop Order') {
-      getDistributorsList();
-    }
+
     setState(() {});
   }
 
-  Future getDistributorsList() async {
-    ApiServices().getDistributors(context).then((value) {
+  Future getDistributorsList(executive) async {
+    LocalStorage().getDistributors(executive).then((value) {
       distributorList.clear();
-      for (var i in value['distributors']) {
-        distributorList.add(i['name']);
+      for (var i in value) {
+        distributorList.add(i);
       }
       if (selectedOrderType == 'Shop Order') {
-        getRouteList();
+        getRouteList(routeList);
       }
     });
   }
 
-  Future getRouteList() async {
-    ApiServices().getRouteList(context, selectedDistributor).then((value) {
+  Future getRouteList(distributor) async {
+    LocalStorage().getRouteList(distributor).then((value) {
       routeList.clear();
-      for (var i in value['routes']) {
-        routeList.add(i['route']);
+      for (var i in value) {
+        routeList.add(i);
       }
     });
     setState(() {});

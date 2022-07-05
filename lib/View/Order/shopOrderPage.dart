@@ -3,7 +3,9 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
+import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
@@ -17,7 +19,7 @@ class ShopOrderPage extends StatefulWidget {
 }
 
 class _ShopOrderPageState extends State<ShopOrderPage> {
-  List shopList = [];
+  List<ShopModel> shopList = [];
   String? executive, distributor, route;
   @override
   void initState() {
@@ -82,16 +84,15 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AppWidgets().text(
-                                        text: '${shopList[index]['name']}',
+                                        text: '${shopList[index].name}',
                                         textsize: 20,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
-                                        text: '${shopList[index]['branch']}',
+                                        text: '${shopList[index].branch}',
                                         textsize: 18,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
-                                        text:
-                                            '${shopList[index]['mobile_number']}',
+                                        text: '${shopList[index].phone}',
                                         textsize: 14,
                                         color: App_Colors().appTextColorViolet),
                                     Padding(padding: EdgeInsets.all(5))
@@ -114,14 +115,11 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                 MaterialStateProperty.all(
                                                     App_Colors()
                                                         .appTextColorViolet)),
-                                        onPressed: () {
-                                          MyApp().saveShopDetails(
-                                              shopList[index]['name']
-                                                  .toString(),
-                                              shopList[index]['branch']
-                                                  .toString(),
-                                              shopList[index]['mobile_number']
-                                                  .toString());
+                                        onPressed: () async {
+                                          await MyApp().saveShopDetails(
+                                              shopList[index].name.toString(),
+                                              shopList[index].branch.toString(),
+                                              shopList[index].phone.toString());
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -150,10 +148,18 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
     await MyApp().getSelectedExecutive().then((value) => executive = value);
     await MyApp().getSelectedDistributor().then((value) => distributor = value);
     await MyApp().getSelectedRoute().then((value) => route = value);
-    await ApiServices().getShopList(context, route).then((value) {
+    await LocalStorage()
+        .getShopList(
+            executive: executive, distributor: distributor, route: route)
+        .then((value) {
       print(value);
-      shopList = value['shops'];
+      shopList = value;
+      print('$shopList');
     });
+    // await ApiServices().getShopList(context, route).then((value) {
+    //
+    //   shopList = value['shops'];
+    // });
     setState(() {});
   }
 }

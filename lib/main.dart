@@ -144,6 +144,7 @@ class MyApp extends StatelessWidget {
   Future getSelectedExecutive() async {
     var prf_selectedExecutive = await SharedPreferences.getInstance();
     String? executive = await prf_selectedExecutive.getString('Executive');
+    return executive;
   }
 
   Future saveSelectedDistributor(distributor) async {
@@ -155,6 +156,7 @@ class MyApp extends StatelessWidget {
     var prf_selectedDistributor = await SharedPreferences.getInstance();
     String? disrtributor =
         await prf_selectedDistributor.getString('Distributor');
+    return disrtributor;
   }
 
   Future saveShopDetails(shop_name, branch, mobile) async {

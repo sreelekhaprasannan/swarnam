@@ -33,6 +33,7 @@ class AppWidgets extends StatefulWidget {
         IconButton(
             onPressed: () async {
               attendanceStatus = await markAttendance(context);
+              ApiServices().getAttendanceStatus(context);
             },
             icon: getAttendanceIcon(context, attendanceStatus)),
       ]),

@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
@@ -18,6 +19,8 @@ class ItemOrderPage1 extends StatefulWidget {
 class _ItemOrderPage1State extends State<ItemOrderPage1>
     with TickerProviderStateMixin {
   List itemGroupList = [];
+  List<ItemListModel> itemGroupitemList = [];
+  List<TextEditingController> qtyController = [];
   List<ItemListModel> itemList = [];
   List<Tab> itemGroupTabs = [];
   var tabindex;
@@ -32,12 +35,13 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     getShopname();
     getUserType();
     getOrderType();
+
     tabController = TabController(length: itemGroupList.length, vsync: this);
     tabController.addListener(() {
       setState(() {
         tabindex = tabController.index;
         selectedItemGroup = itemGroupList[tabindex];
-        getItemList();
+        // getItemList();
       });
     });
   }
@@ -69,8 +73,17 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
               tabs: itemGroupTabs,
               controller: tabController,
               onTap: (index) {
-                selectedItemGroup = itemGroupList[index].toString();
-                getItemList();
+                setState(() {
+                  selectedItemGroup = itemGroupList[index].toString();
+                  itemGroupitemList.clear();
+                  print('${itemList}');
+                  itemList.forEach((element) {
+                    if (element.item_group == selectedItemGroup) {
+                      itemGroupitemList.add(element);
+                    }
+                  });
+                });
+                // getItemList();
                 // getTextEditingControllerList();
               },
             ),
@@ -83,7 +96,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                 String tablabel = tab.text!;
                 return Container(
                   child: ListView.builder(
-                      itemCount: itemList.length,
+                      itemCount: itemGroupitemList.length,
                       itemBuilder: ((context, index) {
                         // getTextEditingControllerList();
                         return Container(
@@ -100,7 +113,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                       child: Container(
                                         child: Text(
                                           // 'name',
-                                          '${itemList[index].item_name}',
+                                          '${itemGroupitemList[index].item_name}',
                                           style: GoogleFonts.notoSans(
                                               fontSize: 16),
                                         ),
@@ -111,7 +124,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                         alignment: Alignment.centerRight,
                                         child: Text(
                                           // 'rate',
-                                          '${itemList[index].item_price}',
+                                          '${itemGroupitemList[index].item_price}',
                                           style: GoogleFonts.notoSans(
                                               fontSize: 18),
                                         ),
@@ -124,8 +137,8 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                     flex: 2,
                                     child: Container(
                                       child: TextFormField(
-                                        controller:
-                                            itemList[index].qtyController,
+                                        controller: itemGroupitemList[index]
+                                            .qtyController,
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                           border: OutlineInputBorder(),
@@ -166,40 +179,59 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
   void getItemGroupList() async {
     Map result = {};
     if (itemGroupList.isEmpty) {
-      await ApiServices().getItemGroupList(context).then((value) {
-        result = value['message'];
+      await LocalStorage().getItemGroupList().then((value) {
         itemGroupTabs.clear();
-
-        for (var item in result['item_group']) {
-          // print(item);
-          itemGroupList.add(item['name']);
-          itemGroupTabs.add(Tab(text: item['name']));
+        itemGroupList = value;
+        for (var i in itemGroupList) {
+          itemGroupTabs.add(Tab(text: i));
         }
       });
     }
+    getItemList();
     setState(() {
       tabController = TabController(length: itemGroupList.length, vsync: this);
     });
   }
 
   void getItemList() async {
-    await ApiServices().getItemList(context, selectedItemGroup).then((value) {
-      // print(value['items']);
-      List li = value['items'];
-      itemList.clear();
-      List<TextEditingController> qtyController = [];
-      for (var i = 0; i < li.length; i++) {
+    await LocalStorage().getItems().then(((value) {
+      qtyController.clear();
+      int index = 0;
+      for (var i in value) {
         qtyController.add(TextEditingController());
         itemList.add(ItemListModel(
-            qtyController: qtyController[i],
-            item_code: li[i]['item_code'].toString(),
-            item_name: li[i]['item_name'].toString(),
-            item_group: li[i]['item_group'].toString(),
-            item_price: li[i]['rate'].toString(),
-            item_qty: qtyController[i].text));
+            qtyController: qtyController[index],
+            item_code: i.item_code.toString(),
+            item_name: i.item_name.toString(),
+            item_group: i.item_group.toString(),
+            item_price: '${i.item_Price}',
+            item_qty: qtyController[index].text.toString()));
+        index++;
       }
-      // itemList = value['items'];
-    });
+      selectedItemGroup = itemGroupList[0];
+      itemList.forEach((element) {
+        if (element.item_group == selectedItemGroup) {
+          itemGroupitemList.add(element);
+        }
+      });
+    }));
+    // await ApiServices().getItemList(context, selectedItemGroup).then((value) {
+    //   // print(value['items']);
+    //   List li = value['items'];
+    //   itemList.clear();
+    //   List<TextEditingController> qtyController = [];
+    //   for (var i = 0; i < li.length; i++) {
+    //     qtyController.add(TextEditingController());
+    //     itemList.add(ItemListModel(
+    //         qtyController: qtyController[i],
+    //         item_code: li[i]['item_code'].toString(),
+    //         item_name: li[i]['item_name'].toString(),
+    //         item_group: li[i]['item_group'].toString(),
+    //         item_price: li[i]['rate'].toString(),
+    //         item_qty: qtyController[i].text));
+    //   }
+    //   // itemList = value['items'];
+    // });
     setState(() {});
   }
 
