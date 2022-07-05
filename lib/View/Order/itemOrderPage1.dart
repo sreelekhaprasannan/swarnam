@@ -1,9 +1,13 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
+import 'package:swarnamordermanagement/Model/Order/shopOrderListModel.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
+import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
@@ -24,7 +28,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
   List<ItemListModel> itemList = [];
   List<Tab> itemGroupTabs = [];
   var tabindex;
-  String? shop_code, selectedItemGroup;
+  String? shop_code, selectedItemGroup, distributor;
   int? orderType, userType;
   late TabController tabController;
   @override
@@ -32,6 +36,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     // TODO: implement initState
     super.initState();
     getItemGroupList();
+    getDistributor();
     getShopname();
     getUserType();
     getOrderType();
@@ -40,6 +45,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     tabController.addListener(() {
       setState(() {
         tabindex = tabController.index;
+        print(tabindex);
         selectedItemGroup = itemGroupList[tabindex];
         // getItemList();
       });
@@ -72,11 +78,11 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
               isScrollable: true,
               tabs: itemGroupTabs,
               controller: tabController,
-              onTap: (index) {
+              onTap: (i) {
                 setState(() {
-                  selectedItemGroup = itemGroupList[index].toString();
+                  selectedItemGroup = itemGroupList[i].toString();
                   itemGroupitemList.clear();
-                  print('${itemList}');
+                  // print('print from setState ${itemList}');
                   itemList.forEach((element) {
                     if (element.item_group == selectedItemGroup) {
                       itemGroupitemList.add(element);
@@ -91,7 +97,9 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
           Expanded(
             flex: 10,
             child: TabBarView(
+              physics: NeverScrollableScrollPhysics(),
               controller: tabController,
+              dragStartBehavior: DragStartBehavior.start,
               children: itemGroupTabs.map((Tab tab) {
                 String tablabel = tab.text!;
                 return Container(
@@ -99,58 +107,71 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                       itemCount: itemGroupitemList.length,
                       itemBuilder: ((context, index) {
                         // getTextEditingControllerList();
-                        return Container(
-                          color: App_Colors().appBackground1,
-                          padding: EdgeInsets.all(8),
-                          height: MediaQuery.of(context).size.height / 8,
-                          child: Column(children: [
-                            Expanded(
-                              flex: 5,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      flex: 4,
+                        // print(index);
+                        if (itemGroupitemList.length > index) {
+                          return Container(
+                            color: App_Colors().appBackground1,
+                            padding: EdgeInsets.all(8),
+                            height: MediaQuery.of(context).size.height / 8,
+                            child: Column(children: [
+                              Expanded(
+                                flex: 5,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        flex: 4,
+                                        child: Container(
+                                          child: Text(
+                                            // 'name',
+                                            '${itemGroupitemList[index].item_name}',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        )),
+                                    Expanded(
+                                        flex: 3,
+                                        child: Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            // 'rate',
+                                            '${itemGroupitemList[index].item_price}',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        )),
+                                    Padding(
+                                        padding: EdgeInsets.all(
+                                            MediaQuery.of(context).size.width /
+                                                12)),
+                                    Expanded(
+                                      flex: 2,
                                       child: Container(
-                                        child: Text(
-                                          // 'name',
-                                          '${itemGroupitemList[index].item_name}',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 16),
-                                        ),
-                                      )),
-                                  Expanded(
-                                      flex: 3,
-                                      child: Container(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          // 'rate',
-                                          '${itemGroupitemList[index].item_price}',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 18),
-                                        ),
-                                      )),
-                                  Padding(
-                                      padding: EdgeInsets.all(
-                                          MediaQuery.of(context).size.width /
-                                              12)),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      child: TextFormField(
-                                        controller: itemGroupitemList[index]
-                                            .qtyController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(),
+                                        child: TextFormField(
+                                          controller: itemGroupitemList[index]
+                                              .qtyController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          onChanged: (value) {
+                                            for (var i in itemList) {
+                                              if (i.item_code ==
+                                                  itemGroupitemList[index]
+                                                      .item_code) {
+                                                i.qtyController.text =
+                                                    value.toString();
+                                              }
+                                            }
+                                          },
                                         ),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ]),
-                        );
+                                    )
+                                  ],
+                                ),
+                              )
+                            ]),
+                          );
+                        } else {
+                          return SizedBox(height: 10);
+                        }
                       })),
                 );
               }).toList(),
@@ -208,36 +229,21 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
             item_qty: qtyController[index].text.toString()));
         index++;
       }
+    }));
+
+    setState(() {
       selectedItemGroup = itemGroupList[0];
       itemList.forEach((element) {
         if (element.item_group == selectedItemGroup) {
           itemGroupitemList.add(element);
         }
       });
-    }));
-    // await ApiServices().getItemList(context, selectedItemGroup).then((value) {
-    //   // print(value['items']);
-    //   List li = value['items'];
-    //   itemList.clear();
-    //   List<TextEditingController> qtyController = [];
-    //   for (var i = 0; i < li.length; i++) {
-    //     qtyController.add(TextEditingController());
-    //     itemList.add(ItemListModel(
-    //         qtyController: qtyController[i],
-    //         item_code: li[i]['item_code'].toString(),
-    //         item_name: li[i]['item_name'].toString(),
-    //         item_group: li[i]['item_group'].toString(),
-    //         item_price: li[i]['rate'].toString(),
-    //         item_qty: qtyController[i].text));
-    //   }
-    //   // itemList = value['items'];
-    // });
-    setState(() {});
+    });
   }
 
   void getShopname() async {
     await MyApp().getShopDetails().then((value) {
-      shop_code = value[''];
+      shop_code = value['Shop_code'];
     });
     setState(() {});
   }
@@ -253,5 +259,32 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     setState(() {});
   }
 
-  void addButtonPressed() {}
+  void addButtonPressed() async {
+    if (orderType == 0) {
+      await MyApp().determinePosition();
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      NewOrderListShop shopOrderlist = NewOrderListShop();
+      for (var i in itemList) {
+        if (i.qtyController.text != '') {
+          shopOrderlist.item_code = i.item_code;
+          shopOrderlist.item = i.item_name;
+          shopOrderlist.item_group = i.item_group;
+          shopOrderlist.qty = i.qtyController.text;
+          shopOrderlist.shop_code = shop_code;
+          shopOrderlist.rate = i.item_price;
+          shopOrderlist.distributor = distributor;
+          shopOrderlist.latitude = position.latitude.toString();
+          shopOrderlist.longitude = position.longitude.toString();
+          await LocalStorage().insertToDB(itemsOrderListShop: shopOrderlist);
+        }
+      }
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => NewOrderShop()));
+    }
+  }
+
+  getDistributor() async {
+    await MyApp().getSelectedDistributor().then((value) => distributor = value);
+  }
 }

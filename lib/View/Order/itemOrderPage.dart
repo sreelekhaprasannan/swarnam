@@ -218,7 +218,6 @@ class ItemOrderPageState extends State<ItemOrderPage>
       for (var index = 0; index <= itemList.length; index++) {
         if ((qtyController[index].text != '0') &&
             (qtyController[index].text != '')) {
-          orderList.shop_name = shopName;
           orderList.item_group = selectedItemGroup;
           orderList.item = itemList[index]['item_name'];
           orderList.item_code = itemList[index]['item_code'];

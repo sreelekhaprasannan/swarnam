@@ -14,7 +14,7 @@ class LocalStorage {
         openDatabase(path.join(await getDatabasesPath(), 'swaranamDB.db'),
             onCreate: (db, version) async {
       await db.execute(
-          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_name TEXT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT)");
+          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT)");
       await db.execute(
           "CREATE TABLE itemsorderlistdistributor(id INTEGER PRIMARY KEY AUTOINCREMENT,distributor_name TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT)");
       await db.execute(
@@ -48,6 +48,23 @@ class LocalStorage {
     }
   }
 
+  Future<List<NewOrderListShop>> getShopOrderListDb(selectedShop) async {
+    Database db = await swarnamDB();
+    List<Map<String, dynamic>> orderList = await db.query('itemsorderlistshop',
+        where: 'shop_code= ?', whereArgs: [selectedShop]);
+    // for(var ol in orderList){}
+    return List.generate(orderList.length, (index) {
+      return NewOrderListShop(
+          id: orderList[index]['id'].toString(),
+          shop_code: orderList[index]['shop_code'],
+          item_group: orderList[index]['item_group'],
+          item: orderList[index]['item_name'],
+          item_code: orderList[index]['item_code'],
+          rate: orderList[index]['rate'],
+          qty: orderList[index]['qty']);
+    });
+  }
+
   Future<List<NewOrderListDistributor>> getDistributorOrderListDb(
       distributor) async {
     Database db = await swarnamDB();
@@ -74,7 +91,6 @@ class LocalStorage {
         distinct: true,
         where: 'executive=? AND distributor=? AND route=?',
         whereArgs: [executive, distributor, route]);
-    print(shops);
     return List.generate(shops.length, (index) {
       return ShopModel(
           shop_code: shops[index]['shop_code'],
@@ -96,7 +112,6 @@ class LocalStorage {
       'item_deiais',
       distinct: true,
     );
-    print(itemList);
     for (var i in itemList) {
       itemGroups.add(i['item_group']);
     }
@@ -160,14 +175,16 @@ class LocalStorage {
       'item_deiais',
       distinct: true,
     );
-    print(itemList);
+    print('itemList form database: $itemList');
     for (var i in itemList) {
       items.add(ItemModel(
           item_code: i['item_code'].toString(),
           item_group: i['item_group'].toString(),
           item_name: i['item_name'].toString(),
-          item_Price: i['item_Price']));
+          item_Price: '${i['item_price']}'));
     }
     return items;
   }
+
+  deleteItemfromShopOrder(selectedShop, String? item_code) {}
 }

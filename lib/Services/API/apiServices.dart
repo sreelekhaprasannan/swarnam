@@ -118,7 +118,7 @@ class ApiServices {
       itemdetais.item_code = i['item_code'].toString();
       itemdetais.item_name = i['item_name'].toString();
       itemdetais.item_group = i['item_group'].toString();
-      itemdetais.item_Price = i['rate'];
+      itemdetais.item_Price = i['rate'].toString();
       await LocalStorage().insertToDB(itemModel: itemdetais);
     }
 

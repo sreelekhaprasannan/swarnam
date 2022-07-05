@@ -117,6 +117,9 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                         .appTextColorViolet)),
                                         onPressed: () async {
                                           await MyApp().saveShopDetails(
+                                              shopList[index]
+                                                  .shop_code
+                                                  .toString(),
                                               shopList[index].name.toString(),
                                               shopList[index].branch.toString(),
                                               shopList[index].phone.toString());
