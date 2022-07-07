@@ -35,8 +35,8 @@ class _LoginHomeState extends State<LoginHome> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getSallesPerson();
     getUserType();
+    getSallesPerson();
     getAttendanceStatus();
   }
 
@@ -91,6 +91,7 @@ class _LoginHomeState extends State<LoginHome> {
       case 0:
         {
           selectedOrderType = 'Shop Order';
+          getDistributorsList(salesPersonName);
           return Expanded(
               flex: 10,
               child: Container(
@@ -232,6 +233,9 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Widget distributorDropDown() {
+    if (userType == 0) {
+      getDistributorsList(salesPersonName);
+    }
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -320,7 +324,7 @@ class _LoginHomeState extends State<LoginHome> {
             child: GestureDetector(
                 child: imageContainer(
                     'lib/Images/ordericon.png', 'ORDER', App_Colors().appWhite),
-                onTap: () {
+                onTap: () async {
                   if (selectedOrderType == 'Shop Order') {
                     if (selectedDistributor == '' ||
                         selectedDistributor == null) {
@@ -337,10 +341,16 @@ class _LoginHomeState extends State<LoginHome> {
                     }
                   }
                   if (selectedOrderType == 'Distributor Order') {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DisributorOrderPage()));
+                    if (selectedExecutive == '' || selectedExecutive == null) {
+                      EasyLoading.showToast('Select Route',
+                          duration: Duration(seconds: 1));
+                    } else {
+                      await MyApp().saveSelectedExecutive(selectedExecutive!);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DisributorOrderPage()));
+                    }
                   }
                 }),
           ),
@@ -419,6 +429,9 @@ class _LoginHomeState extends State<LoginHome> {
 
   getSallesPerson() async {
     await MyApp().getSalesPerson().then((value) => salesPersonName = value);
+    if (userType == 0) {
+      getDistributorsList(salesPersonName);
+    }
     setState(() {});
   }
 
@@ -429,7 +442,11 @@ class _LoginHomeState extends State<LoginHome> {
       selectedOrderType = listofOrderType![0];
     }
     if (selectedOrderType == "Distributor Order") {
+      await MyApp().saveOrderType(1);
       getExecutiveList();
+    }
+    if (userType == 0) {
+      await MyApp().saveOrderType(0);
     }
 
     setState(() {});
@@ -451,7 +468,7 @@ class _LoginHomeState extends State<LoginHome> {
     }
   }
 
-  void getExecutiveList() {
+  getExecutiveList() {
     LocalStorage().getExecutive().then((value) {
       if (executives.length != 0) {
         executives.clear();
@@ -466,15 +483,15 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Future getDistributorsList(executive) async {
-    LocalStorage().getDistributors(executive).then((value) {
-      distributorList.clear();
-      for (var i in value) {
-        distributorList.add(i);
-      }
-      if (selectedOrderType == 'Shop Order') {
-        getRouteList(routeList);
-      }
-    });
+    LocalStorage().getDistributors(executive).then(
+      (value) {
+        distributorList.clear();
+        for (var i in value) {
+          distributorList.add(i);
+        }
+      },
+    );
+    setState(() {});
   }
 
   Future getRouteList(distributor) async {

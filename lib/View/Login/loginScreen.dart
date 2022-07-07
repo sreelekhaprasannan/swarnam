@@ -242,43 +242,56 @@ class LoginScreenState extends State<LoginScreen> {
       isloading = true;
     });
     saveUsenameandPassword();
+    try {
+      await ApiServices()
+          .Login(usernameController.text, passwordController.text)
+          .then((value) async {
+        if (value['success']) {
+          iswrongCredential = false;
+          userType = value['user_type'];
+          token = value['token'];
+          await MyApp().saveUserType(userType);
+          await MyApp().saveToken(token);
+          await MyApp().saveSalesPerson(value['sales_person']);
+          await ApiServices().getShopList(context);
+          await ApiServices().getItemList(context);
+          if (userType == 1) {
+            await ApiServices().getDistributors(context);
+          }
 
-    await ApiServices()
-        .Login(usernameController.text, passwordController.text)
-        .then((value) async {
-      if (value['success']) {
-        iswrongCredential = false;
-        userType = value['user_type'];
-        token = value['token'];
-        await MyApp().saveUserType(userType);
-        await MyApp().saveToken(token);
-        await MyApp().saveSalesPerson(value['sales_person']);
-        await ApiServices().getShopList(context);
-        await ApiServices().getItemList(context);
-        Navigator.of(context).pushReplacement(PageRouteBuilder(
-            transitionDuration: Duration(milliseconds: 300),
-            reverseTransitionDuration: Duration(milliseconds: 300),
-            transitionsBuilder: (context, animation, secAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
-                    .animate(animation),
-                child: child,
-              );
-            },
-            pageBuilder: (context, animation, secAnimation) {
-              return LoginHome();
-            }));
-      } else {
-        iswrongCredential = true;
-        timer?.cancel();
-        await EasyLoading.showToast('${value['message']}',
-            toastPosition: EasyLoadingToastPosition.bottom);
-        print('message : ${value['message']}');
-        setState(() {
-          isloading = false;
-        });
-      }
-    });
+          Navigator.of(context).pushReplacement(PageRouteBuilder(
+              transitionDuration: Duration(milliseconds: 300),
+              reverseTransitionDuration: Duration(milliseconds: 300),
+              transitionsBuilder: (context, animation, secAnimation, child) {
+                return SlideTransition(
+                  position: Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
+                      .animate(animation),
+                  child: child,
+                );
+              },
+              pageBuilder: (context, animation, secAnimation) {
+                return LoginHome();
+              }));
+        } else {
+          iswrongCredential = true;
+          timer?.cancel();
+          await EasyLoading.showToast('${value['message']}',
+              toastPosition: EasyLoadingToastPosition.bottom);
+          print('message : ${value['message']}');
+          setState(() {
+            isloading = false;
+          });
+        }
+      });
+    } catch (e) {
+      print(e);
+      EasyLoading.showToast(
+          'Please Check your Internet Connection \n And Try Again',
+          dismissOnTap: true);
+      isloading = false;
+      setState(() {});
+    }
+
     //   setState(() {});
   }
 

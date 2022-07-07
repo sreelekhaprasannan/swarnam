@@ -8,6 +8,7 @@ import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
+import 'package:swarnamordermanagement/View/Order/orderHistoryPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
@@ -21,6 +22,7 @@ class ShopOrderPage extends StatefulWidget {
 class _ShopOrderPageState extends State<ShopOrderPage> {
   List<ShopModel> shopList = [];
   String? executive, distributor, route;
+  var userType;
   @override
   void initState() {
     // TODO: implement initState
@@ -101,9 +103,31 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                             Expanded(
                               flex: 1,
                               child: Row(
-                                children: [FaIcon(FontAwesomeIcons.history)],
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: IconButton(
+                                        iconSize: 35,
+                                        onPressed: () async {
+                                          await MyApp().saveShopDetails(
+                                              shopList[index]
+                                                  .shop_code
+                                                  .toString(),
+                                              shopList[index].name.toString(),
+                                              shopList[index].branch.toString(),
+                                              shopList[index].phone.toString());
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OrderHistoryPage()));
+                                        },
+                                        icon: Icon(Icons.history)),
+                                  )
+                                ],
                               ),
                             ),
+                            Padding(padding: EdgeInsets.all(5)),
                             Expanded(
                               flex: 2,
                               child: Row(
@@ -148,7 +172,12 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
   }
 
   Future getshopList() async {
-    await MyApp().getSelectedExecutive().then((value) => executive = value);
+    await MyApp().getUserType().then((value) => userType = value);
+    if (userType == 1) {
+      await MyApp().getSelectedExecutive().then((value) => executive = value);
+    } else {
+      await MyApp().getSalesPerson().then((value) => executive = value);
+    }
     await MyApp().getSelectedDistributor().then((value) => distributor = value);
     await MyApp().getSelectedRoute().then((value) => route = value);
     await LocalStorage()

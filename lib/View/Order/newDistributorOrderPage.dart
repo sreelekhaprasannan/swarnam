@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:swarnamordermanagement/Model/Order/distributorOrderList.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
-import 'package:swarnamordermanagement/View/Order/itemOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
+import 'package:swarnamordermanagement/main.dart';
+
+import '../../Services/API/apiServices.dart';
+import '../../Services/Database/localStorage.dart';
+import 'itemOrderPage1.dart';
 
 class NewOrderDistributor extends StatefulWidget {
   const NewOrderDistributor({Key? key}) : super(key: key);
@@ -13,6 +20,19 @@ class NewOrderDistributor extends StatefulWidget {
 }
 
 class _NewOrderDistributorState extends State<NewOrderDistributor> {
+  List<NewOrderListDistributor> itemOrderList = [];
+  TextEditingController qtyController = TextEditingController();
+  var name, mobile, distributor_code, executive;
+  double totalAmount = 0;
+  Map distributorDetails = {};
+  @override
+  void initState() {
+    // TODO: implement initState
+    getDistributorDetais();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +45,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
             Container(
               // margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(3),
-              height: MediaQuery.of(context).size.height / 6,
+              height: MediaQuery.of(context).size.height / 5,
               decoration: BoxDecoration(
                   color: App_Colors().appWhite,
                   borderRadius: BorderRadius.circular(20),
@@ -64,9 +84,15 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppWidgets().text(text: 'Name', textsize: 16),
-                                  AppWidgets()
-                                      .text(text: 'mobile', textsize: 14),
+                                  AppWidgets().text(
+                                      text:
+                                          '${distributorDetails['Distributor_name']}',
+                                      textsize: 16,
+                                      maxLines: 2),
+                                  AppWidgets().text(
+                                      text:
+                                          '${distributorDetails['Distributor_Mobile']}',
+                                      textsize: 14),
                                 ]),
                           ),
                           flex: 5,
@@ -77,43 +103,239 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                 ],
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child:
-                          AppWidgets().text(text: 'Order id : ', textsize: 14),
-                    ),
-                    Expanded(
-                      child: AppWidgets().text(text: 'mobile', textsize: 14),
-                    )
-                  ],
-                ),
-              ),
-            ),
+            Padding(padding: EdgeInsets.all(5)),
             Row(
               children: [
                 Expanded(
                     child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                App_Colors().appTextColorViolet)),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: ((context) => ItemOrderPage())));
+                          orderButtonPressed();
                         },
                         child: Text('ORDERS')))
               ],
             ),
             Expanded(
-              flex: 18,
-              child: Row(
-                children: [Expanded(child: Container())],
-              ),
-            )
+                flex: 12,
+                child: Container(
+                  margin: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(5),
+                  child: ListView.builder(
+                      itemCount: itemOrderList.length,
+                      itemBuilder: ((context, index) {
+                        final orderitem = itemOrderList[index];
+                        return Dismissible(
+                            // onHorizontalDragEnd: (){deleteItemfromShopOrder(index)},
+                            key: Key(orderitem.item.toString()),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  height:
+                                      MediaQuery.of(context).size.height / 10,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: Colors
+                                          .white, //App_Colors().appBackground1,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color.fromARGB(
+                                                    255, 116, 113, 113)
+                                                .withOpacity(0.3),
+                                            blurRadius: 15,
+                                            spreadRadius: 2)
+                                      ]),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 3,
+                                        child: Container(
+                                            decoration: BoxDecoration(),
+                                            child: Text(
+                                              '${itemOrderList[index].item}',
+                                              style: GoogleFonts.notoSans(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            )),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                            // decoration: BoxDecoration(
+                                            //         border: Border.all(
+                                            //             style: BorderStyle.solid)
+                                            // ),
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                                '${itemOrderList[index].qty}',
+                                                style: GoogleFonts.notoSans(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                      ),
+                                      Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                              padding:
+                                                  EdgeInsets.only(right: 5),
+                                              //     height:
+                                              //         MediaQuery.of(context).size.width /
+                                              //             25,
+                                              //     decoration: BoxDecoration(
+                                              //         border: Border.all(
+                                              //             style: BorderStyle.solid)),
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                  '${itemOrderList[index].rate}',
+                                                  style: GoogleFonts.notoSans(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold)))),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                            padding: EdgeInsets.only(right: 5),
+                                            //     decoration: BoxDecoration(
+                                            //         border: Border.all(
+                                            //             style: BorderStyle.solid)),
+                                            alignment: Alignment.centerRight,
+                                            child: calculateAmount(
+                                                itemOrderList[index].qty,
+                                                itemOrderList[index].rate)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                              ],
+                            ),
+                            background: slideRightBackground(),
+                            secondaryBackground: slideLeftBackground(),
+                            confirmDismiss: (direction) async {
+                              if (direction == DismissDirection.endToStart) {
+                                // final bool res =
+                                await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text(
+                                            "Are you sure you want to delete ${itemOrderList[index].item}?"),
+                                        actions: [
+                                          FlatButton(
+                                            child: Text(
+                                              "Cancel",
+                                              style: GoogleFonts.notoSans(
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                Navigator.of(context)
+                                                    .pop(false);
+                                              });
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text(
+                                              "Delete",
+                                              style: GoogleFonts.notoSans(
+                                                  color: Colors.red),
+                                            ),
+                                            onPressed: () {
+                                              // TODO: Delete the item from DB etc..
+                                              setState(() {
+                                                deleteItemfromDistributorOrder(
+                                                    index);
+                                                itemOrderList.removeAt(index);
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    });
+                                // return res;
+                              } else if (direction ==
+                                  DismissDirection.startToEnd) {
+                                await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: TextFormField(
+                                          controller: qtyController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              hintText: 'Enter the Quantity'),
+                                        ),
+                                        actions: [
+                                          FlatButton(
+                                            child: Text(
+                                              "Cancel",
+                                              style: GoogleFonts.notoSans(
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                Navigator.of(context)
+                                                    .pop(false);
+                                              });
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text(
+                                              "Ok",
+                                              style: GoogleFonts.notoSans(
+                                                  color: Colors.green),
+                                            ),
+                                            onPressed: () {
+                                              NewOrderListDistributor
+                                                  distributorOrder =
+                                                  NewOrderListDistributor();
+                                              var itemOrderList;
+                                              distributorOrder.item_code =
+                                                  itemOrderList[index]
+                                                      .item_code;
+                                              distributorOrder
+                                                      .distributor_name =
+                                                  itemOrderList[index]
+                                                      .distributor;
+
+                                              distributorOrder.isSubmited = 0;
+
+                                              distributorOrder.item =
+                                                  itemOrderList[index].item;
+                                              distributorOrder.item_group =
+                                                  itemOrderList[index]
+                                                      .item_group;
+                                              distributorOrder.rate =
+                                                  itemOrderList[index].rate;
+                                              distributorOrder.qty =
+                                                  qtyController.text;
+                                              distributorOrder
+                                                      .distributor_code =
+                                                  itemOrderList[index]
+                                                      .distributor_code;
+
+                                              deleteItemfromDistributorOrder(
+                                                  index);
+                                              updateNewQty(distributorOrder);
+                                              setState(() {
+                                                qtyController.text = '';
+                                                getList();
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              }
+                              ;
+                            });
+                      })),
+                ))
           ],
         ),
       )),
@@ -123,8 +345,173 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
 
   getFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: () {},
+      backgroundColor: App_Colors().appTextColorViolet,
+      onPressed: () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => ItemOrderPage1()));
+      },
       child: Icon(Icons.add),
     );
+  }
+
+  calculateAmount(qty, rate) {
+    var amount = int.parse(qty) * double.parse(rate);
+
+    return Text('$amount',
+        style: GoogleFonts.notoSans(fontSize: 16, fontWeight: FontWeight.bold));
+  }
+
+//--------- when the List Container Swipes from Left to Right ---------//
+
+  Widget slideRightBackground() {
+    return Container(
+      color: Colors.green,
+      child: Align(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: 20,
+            ),
+            Icon(
+              Icons.edit,
+              color: Colors.white,
+            ),
+            Text(
+              " Edit",
+              style: GoogleFonts.notoSans(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+        alignment: Alignment.centerLeft,
+      ),
+    );
+  }
+
+//--------- when the List Container Swipes from Right to Left -----------//
+  Widget slideLeftBackground() {
+    return Container(
+      color: App_Colors().appRed,
+      child: Align(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Icon(
+              Icons.delete,
+              color: App_Colors().appBackground1,
+            ),
+            Text(
+              " Delete",
+              style: GoogleFonts.notoSans(
+                color: App_Colors().appBackground1,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.right,
+            ),
+            SizedBox(
+              width: 20,
+            ),
+          ],
+        ),
+        alignment: Alignment.centerRight,
+      ),
+    );
+  }
+
+  Future updateNewQty(NewOrderListDistributor distributorOrder) async {
+    await LocalStorage().insertToDB(itemOrderListDistributor: distributorOrder);
+    getList();
+    setState(() {});
+  }
+
+  Future getDistributorDetais() async {
+    await MyApp().getDistributorsDetails().then((value) {
+      distributorDetails = value;
+    });
+    getList();
+    setState(() {});
+  }
+
+  deleteItemfromDistributorOrder(index) async {
+    var item_code = itemOrderList[index].item_code;
+    await LocalStorage().deleteItemfromDistributorOrder(
+        distributorDetails['Distributor_code'], item_code);
+    // setState(() {});
+  }
+
+  Future getList() async {
+    bool isItemPresent = false;
+    await LocalStorage()
+        .getDistributorOrderListDb(distributorDetails['Distributor_code'])
+        .then((value) {
+      totalAmount = 0;
+      itemOrderList.clear();
+      for (var item in value) {
+        if (itemOrderList.length >= 1) {
+          isItemPresent = false;
+          for (int i = 0; i < itemOrderList.length; i++) {
+            if (itemOrderList[i].item_code == item.item_code) {
+              itemOrderList[i].qty =
+                  (int.parse(itemOrderList[i].qty.toString()) +
+                          int.parse(item.qty.toString()))
+                      .toString();
+              isItemPresent = true;
+            }
+          }
+          if (!isItemPresent) {
+            itemOrderList.add(item);
+          }
+        } else {
+          itemOrderList.add(item);
+        }
+      }
+      for (var item in itemOrderList) {
+        totalAmount = totalAmount +
+            (int.parse((item.qty).toString()) *
+                double.parse((item.rate).toString()));
+      }
+    });
+    setState(() {});
+  }
+
+  orderButtonPressed() async {
+    List<Map> orderitemList = [];
+    if (itemOrderList.isEmpty) {
+      EasyLoading.showToast('Please Add Items to Create Order',
+          duration: Duration(seconds: 1));
+      setState(() {});
+    } else {
+      List<Map> li = [];
+      itemOrderList.forEach((element) {
+        li.add({
+          "item_code": element.item_code,
+          "qty": double.parse(element.qty.toString()),
+          "rate": double.parse(element.rate.toString())
+        });
+      });
+      try {
+        ApiServices()
+            .placeOrderDistributor(
+                context, distributorDetails['Distributor_code'], li, executive)
+            .then((value) {
+          if (value['success']) {
+            LocalStorage()
+                .deleteShopOrder(distributorDetails['Distributor_code']);
+            itemOrderList.clear();
+            EasyLoading.showToast('${value['message']}');
+            setState(() {});
+          }
+        });
+      } catch (e) {}
+    }
+  }
+
+  getEecutive() async {
+    await MyApp().getSelectedExecutive().then((value) => executive = value);
+    setState(() {});
   }
 }

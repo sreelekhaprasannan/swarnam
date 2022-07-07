@@ -1,6 +1,7 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
+import 'package:swarnamordermanagement/Model/Distributor/distributorModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
@@ -14,13 +15,13 @@ class LocalStorage {
         openDatabase(path.join(await getDatabasesPath(), 'swaranamDB.db'),
             onCreate: (db, version) async {
       await db.execute(
-          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT)");
+          "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT,isSubmited INTEGER)");
       await db.execute(
-          "CREATE TABLE itemsorderlistdistributor(id INTEGER PRIMARY KEY AUTOINCREMENT,distributor_name TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT)");
+          "CREATE TABLE itemsorderlistdistributor(id INTEGER PRIMARY KEY AUTOINCREMENT,distributor_name TEXT,distributor_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,isSubmited INTEGER)");
       await db.execute(
-          "CREATE TABLE distributor_detais(distributor_code TEXT,name TEXT,mobile TEXT,executive TEXT);");
+          "CREATE TABLE distributor_details(distributor_code TEXT,name TEXT,mobile TEXT,executive TEXT);");
       await db.execute(
-          "CREATE TABLE item_deiais(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
+          "CREATE TABLE item_deiails(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
       await db.execute(
           "CREATE TABLE shop_details(shop_code TEXT,name TEXT,branch TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
     }, version: 1);
@@ -30,6 +31,7 @@ class LocalStorage {
   Future insertToDB(
       {NewOrderListShop? itemsOrderListShop,
       NewOrderListDistributor? itemOrderListDistributor,
+      DistributorModel? distributorModel,
       ShopModel? shoplist,
       ItemModel? itemModel}) async {
     Database db = await swarnamDB();
@@ -44,7 +46,10 @@ class LocalStorage {
       await db.insert('shop_details', shoplist.tomap());
     }
     if (itemModel != null) {
-      await db.insert('item_deiais', itemModel.tomap());
+      await db.insert('item_deiails', itemModel.tomap());
+    }
+    if (distributorModel != null) {
+      await db.insert('distributor_details', distributorModel.tomap());
     }
   }
 
@@ -61,6 +66,9 @@ class LocalStorage {
           item: orderList[index]['item_name'],
           item_code: orderList[index]['item_code'],
           rate: orderList[index]['rate'],
+          latitude: orderList[index]['latitude'],
+          longitude: orderList[index]['longitude'],
+          isSubmited: orderList[index]['isSubmited'],
           qty: orderList[index]['qty']);
     });
   }
@@ -70,7 +78,7 @@ class LocalStorage {
     Database db = await swarnamDB();
     List<Map<String, dynamic>> orderList = await db.query(
         'itemsorderlistdistributor',
-        where: 'distributor_name= ?',
+        where: 'distributor_code= ?',
         whereArgs: [distributor]);
     // for(var ol in orderList){}
     return List.generate(orderList.length, (index) {
@@ -105,11 +113,26 @@ class LocalStorage {
     });
   }
 
+  Future getDistributorsList(executive) async {
+    Database db = await swarnamDB();
+    List distributors = await db.query('distributor_details',
+        distinct: true, where: 'executive = ?', whereArgs: [executive]);
+    print(distributors);
+    return List.generate(distributors.length, (index) {
+      return DistributorModel(
+          distributor_code: distributors[index]['distributor_code'],
+          name: distributors[index]['name'],
+          executive: distributors[index]['executive'],
+          mobile: distributors[index]['mobile']);
+    });
+    // return distributors;
+  }
+
   Future getItemGroupList() async {
     Database db = await swarnamDB();
     Set itemGroups = {};
     List<Map<String, dynamic>> itemList = await db.query(
-      'item_deiais',
+      'item_deiails',
       distinct: true,
     );
     for (var i in itemList) {
@@ -130,10 +153,11 @@ class LocalStorage {
     Set distributor = {};
     var li = await db.query(
       'shop_details',
+      distinct: true,
       where: 'executive=?',
       whereArgs: [executive],
-      distinct: true,
     );
+    print(li);
     for (var i in li) {
       distributor.add(i['distributor']);
     }
@@ -143,13 +167,16 @@ class LocalStorage {
   Future getExecutive() async {
     Database db = await swarnamDB();
     Set executive = {};
-    var li = await db.query(
-      'shop_details',
-      distinct: true,
-    );
+    var li =
+        await db.query('shop_details', columns: ['executive'], distinct: true);
     for (var i in li) {
       executive.add(i['executive']);
     }
+    // var li1 = await db.query('distributor_details', distinct: true);
+    // for (var i in li1) {
+    //   executive.add(i['executive']);
+    // }
+
     return executive.toList();
   }
 
@@ -172,7 +199,7 @@ class LocalStorage {
     Database db = await swarnamDB();
     List<ItemModel> items = [];
     List<Map<String, dynamic>> itemList = await db.query(
-      'item_deiais',
+      'item_deiails',
       distinct: true,
     );
     print('itemList form database: $itemList');
@@ -186,5 +213,18 @@ class LocalStorage {
     return items;
   }
 
-  deleteItemfromShopOrder(selectedShop, String? item_code) {}
+  deleteItemfromShopOrder(String? selectedShop, String? item_code) async {
+    Database db = await swarnamDB();
+    db.delete('itemsorderlistshop',
+        where: 'shop_code = ? and item_code = ?',
+        whereArgs: [selectedShop, item_code]);
+  }
+
+  Future deleteShopOrder(selectedShop) async {
+    Database db = await swarnamDB();
+    db.delete('itemsorderlistshop',
+        where: 'shop_code= ?', whereArgs: [selectedShop]);
+  }
+
+  deleteItemfromDistributorOrder(shopDetail, String? item_code) {}
 }

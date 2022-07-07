@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/main.dart';
 
 import '../../Model/Order/shopOrderListModel.dart';
 import '../../Services/Database/localStorage.dart';
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
-import 'itemOrderPage.dart';
 import 'itemOrderPage1.dart';
 
 class NewOrderShop extends StatefulWidget {
@@ -23,11 +24,13 @@ class _NewOrderShopState extends State<NewOrderShop> {
   TextEditingController qtyController = TextEditingController();
   Map shopDetails = {};
   double totalAmount = 0;
+  String? distributor;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getShopDetails();
+    getDistributor();
   }
 
   @override
@@ -109,10 +112,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
                             backgroundColor: MaterialStateProperty.all(
                                 App_Colors().appTextColorViolet)),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: ((context) => ItemOrderPage1())));
+                          orderButtonPressed();
                         },
                         child: Text('ORDER')))
               ],
@@ -294,6 +294,15 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                               shopOrder.item_code =
                                                   itemOrderList[index]
                                                       .item_code;
+                                              shopOrder.distributor =
+                                                  itemOrderList[index]
+                                                      .distributor;
+                                              shopOrder.longitude =
+                                                  itemOrderList[index]
+                                                      .longitude;
+                                              shopOrder.isSubmited = 0;
+                                              shopOrder.latitude =
+                                                  itemOrderList[index].latitude;
                                               shopOrder.item =
                                                   itemOrderList[index].item;
                                               shopOrder.item_group =
@@ -303,6 +312,9 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                                   itemOrderList[index].rate;
                                               shopOrder.qty =
                                                   qtyController.text;
+                                              shopOrder.shop_code =
+                                                  itemOrderList[index]
+                                                      .shop_code;
 
                                               deleteItemfromShopOrder(index);
                                               updateNewQty(shopOrder);
@@ -459,5 +471,44 @@ class _NewOrderShopState extends State<NewOrderShop> {
 
   Future updateNewQty(NewOrderListShop shopOrder) async {
     await LocalStorage().insertToDB(itemsOrderListShop: shopOrder);
+    getList();
+    setState(() {});
+  }
+
+  orderButtonPressed() async {
+    if (itemOrderList.isEmpty) {
+      EasyLoading.showToast('Please Add Items to Create Order',
+          duration: Duration(seconds: 1));
+    } else {
+      List<Map> li = [];
+      var latitude, longitude;
+      itemOrderList.forEach((element) {
+        li.add({
+          "item_code": element.item_code,
+          "qty": element.qty,
+          "rate": element.rate
+        });
+        latitude = element.latitude;
+        longitude = element.longitude;
+      });
+      try {
+        ApiServices()
+            .placeOrderShop(context, shopDetails['Shop_code'], distributor, li,
+                latitude, longitude)
+            .then((value) {
+          if (value['success']) {
+            LocalStorage().deleteShopOrder(shopDetails['Shop_code']);
+            itemOrderList.clear();
+            EasyLoading.showToast('${value['message']}');
+            setState(() {});
+          }
+        });
+      } catch (e) {}
+    }
+  }
+
+  getDistributor() async {
+    await MyApp().getSelectedDistributor().then((value) => distributor = value);
+    setState(() {});
   }
 }

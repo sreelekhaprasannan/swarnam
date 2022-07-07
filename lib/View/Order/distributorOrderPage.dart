@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:swarnamordermanagement/View/Order/itemOrderPage.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
+import 'package:swarnamordermanagement/main.dart';
 
+import '../../Model/Distributor/distributorModel.dart';
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
 import 'newDistributorOrderPage.dart';
@@ -16,6 +18,14 @@ class DisributorOrderPage extends StatefulWidget {
 }
 
 class _DisributorOrderPageState extends State<DisributorOrderPage> {
+  List<DistributorModel> distributorsList = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    getDistributorsList();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +69,7 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                 margin: EdgeInsets.only(top: 10),
                 padding: EdgeInsets.all(5),
                 child: ListView.builder(
-                    itemCount: 15,
+                    itemCount: distributorsList.length,
                     itemBuilder: ((context, index) {
                       return Container(
                         padding: EdgeInsets.all(15),
@@ -73,11 +83,12 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AppWidgets().text(
-                                        text: 'Distributor Name',
+                                        text: '${distributorsList[index].name}',
                                         textsize: 20,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
-                                        text: 'Mobile Number',
+                                        text:
+                                            '${distributorsList[index].mobile}',
                                         textsize: 14,
                                         color: App_Colors().appTextColorViolet),
                                     Padding(padding: EdgeInsets.all(5))
@@ -101,7 +112,17 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                                 MaterialStateProperty.all(
                                                     App_Colors()
                                                         .appTextColorViolet)),
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          await MyApp().saveDistributorDetails(
+                                              distributorsList[index]
+                                                  .distributor_code
+                                                  .toString(),
+                                              distributorsList[index]
+                                                  .name
+                                                  .toString(),
+                                              distributorsList[index]
+                                                  .mobile
+                                                  .toString());
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -124,5 +145,17 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
         ],
       )),
     );
+  }
+
+  getDistributorsList() async {
+    var executive;
+    await MyApp().getSelectedExecutive().then((value) => executive = value);
+    await LocalStorage().getDistributorsList(executive).then((value) {
+      distributorsList.clear();
+      for (var i = 0; i < value.length; i++) {
+        distributorsList.add(value[i]);
+      }
+    });
+    setState(() {});
   }
 }

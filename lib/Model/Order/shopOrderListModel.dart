@@ -9,13 +9,14 @@ class NewOrderListShop {
   String? qty;
   String? latitude;
   String? longitude;
+  int? isSubmited;
   NewOrderListShop(
       {this.id,
       this.distributor,
       this.shop_code,
       this.item_group,
       this.item_code,
-      this.item,
+      this.item,this.isSubmited,
       this.rate,
       this.qty,
       this.latitude,
@@ -24,14 +25,15 @@ class NewOrderListShop {
     return {
       "id": id,
       "item_code": item_code,
-      "distributor":distributor,
+      "distributor": distributor,
       "shop_code": shop_code,
       "item_group": item_group,
       "item_name": item,
       "rate": rate,
       "qty": qty,
       "latitude": latitude,
-      "longitude": longitude
+      "longitude": longitude,
+      "isSubmited":0
     };
   }
 }

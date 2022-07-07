@@ -5,8 +5,10 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
+import 'package:swarnamordermanagement/Model/Order/distributorOrderList.dart';
 import 'package:swarnamordermanagement/Model/Order/shopOrderListModel.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
+import 'package:swarnamordermanagement/View/Order/newDistributorOrderPage.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 
 import '../../Services/API/apiServices.dart';
@@ -26,6 +28,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
   List<ItemListModel> itemGroupitemList = [];
   List<TextEditingController> qtyController = [];
   List<ItemListModel> itemList = [];
+  Map distributorDetails = {};
   List<Tab> itemGroupTabs = [];
   var tabindex;
   String? shop_code, selectedItemGroup, distributor;
@@ -33,13 +36,13 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
   late TabController tabController;
   @override
   void initState() {
+    getOrderType();
     // TODO: implement initState
     super.initState();
     getItemGroupList();
-    getDistributor();
+    getDistributorDetails();
     getShopname();
     getUserType();
-    getOrderType();
 
     tabController = TabController(length: itemGroupList.length, vsync: this);
     tabController.addListener(() {
@@ -160,6 +163,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                                     value.toString();
                                               }
                                             }
+                                            setState(() {});
                                           },
                                         ),
                                       ),
@@ -282,9 +286,32 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => NewOrderShop()));
     }
+    if (orderType == 1) {
+      NewOrderListDistributor distributorOrderlist = NewOrderListDistributor();
+      for (var i in itemList) {
+        if (i.qtyController.text != '') {
+          distributorOrderlist.item_code = i.item_code;
+          distributorOrderlist.item = i.item_name;
+          distributorOrderlist.item_group = i.item_group;
+          distributorOrderlist.qty = i.qtyController.text;
+          distributorOrderlist.rate = i.item_price;
+          distributorOrderlist.isSubmited = 0;
+          distributorOrderlist.distributor_name =
+              distributorDetails['Distributor_name'];
+          distributorOrderlist
+            ..distributor_code = distributorDetails['Distributor_code'];
+          await LocalStorage()
+              .insertToDB(itemOrderListDistributor: distributorOrderlist);
+        }
+      }
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => NewOrderDistributor()));
+    }
   }
 
-  getDistributor() async {
-    await MyApp().getSelectedDistributor().then((value) => distributor = value);
+  getDistributorDetails() async {
+    await MyApp()
+        .getDistributorsDetails()
+        .then((value) => distributorDetails = value);
   }
 }
