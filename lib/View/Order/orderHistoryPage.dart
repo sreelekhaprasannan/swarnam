@@ -1,6 +1,10 @@
+import 'package:file_downloader/file_downloader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
+import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
@@ -21,6 +25,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    FileDownload().registerPortData(setState);
     getUserType();
   }
 
@@ -29,6 +34,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     if (userType != null) {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: App_Colors().appTextColorViolet,
           title: isExecutive ? Text('$shopName') : Text('$distributorName'),
         ),
         body: Container(
@@ -54,6 +60,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               itemCount: historyList.length,
               itemBuilder: ((context, index) {
                 return Container(
+                  margin: EdgeInsets.all(3),
                   child: Column(
                     children: [
                       Row(
@@ -67,24 +74,18 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text('Order id: ',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 20)),
-                                      Text('${historyList[index]['name']}',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 20)),
+                                      AppWidgets().text(text: 'Order id: '),
+                                      AppWidgets().text(
+                                          text: '${historyList[index]['name']}')
                                     ],
                                   ),
                                   Padding(padding: EdgeInsets.all(5)),
                                   Row(
                                     children: [
-                                      Text('Date: ',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 20)),
-                                      Text(
-                                          '${historyList[index]['transaction_date']}',
-                                          style: GoogleFonts.notoSans(
-                                              fontSize: 20)),
+                                      AppWidgets().text(text: 'Date: '),
+                                      AppWidgets().text(
+                                          text:
+                                              '${historyList[index]['order_date']}')
                                     ],
                                   )
                                 ],
@@ -92,20 +93,30 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                             ],
                           )),
                           IconButton(
-                              onPressed: () {}, icon: Icon(Icons.download))
+                              onPressed: () {
+                                downloadPressed(
+                                    '${historyList[index]['name']}');
+                              },
+                              icon: Icon(
+                                Icons.download,
+                                color: App_Colors().appTextColorViolet,
+                              ))
                         ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text('Amount: '),
-                          Text('${historyList[index]['grand_total']}',
-                              style: GoogleFonts.notoSans(fontSize: 20)),
+                          AppWidgets().text(
+                              text: 'Amount: ',
+                              color: App_Colors().appTextColorYellow),
+                          AppWidgets().text(
+                              text: '${historyList[index]['amount']}',
+                              color: App_Colors().appTextColorYellow)
                         ],
                       )
                     ],
                   ),
-                  padding: EdgeInsets.all(3),
+                  padding: EdgeInsets.all(10),
                 );
               })));
     }
@@ -113,16 +124,27 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
   Future getHistory() async {
     if (orderType == 0) {
-      await ApiServices().getShopHistory(context, shop_code).then((value) {
-        print(value);
-      });
+      isExecutive = true;
+      try {
+        await ApiServices().getShopHistory(context, shop_code).then((value) {
+          for (var i in value['orders']) {
+            historyList.add(i);
+          }
+        });
+      } catch (e) {}
+      setState(() {});
     }
     if (orderType == 1) {
-      await ApiServices()
-          .getDistributorHistory(context, distributorName)
-          .then((value) => historyList = value['orders']);
-      print(historyList);
-      setState(() {});
+      isExecutive = false;
+      try {
+        await ApiServices()
+            .getDistributorHistory(context, distributorName)
+            .then((value) => historyList = value['orders']);
+        setState(() {});
+      } catch (e) {
+        EasyLoading.showError(
+            'Check Your Internet Connectivity\nAnd Try Again');
+      }
     }
   }
 
@@ -132,9 +154,11 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     if (userType == 0) {
       isExecutive = true;
       //-------------- get the shop name ----------------//
-      await MyApp()
-          .getShopDetails()
-          .then((value) => shop_code = value['Shop_code']);
+      orderType = 0;
+      await MyApp().getShopDetails().then((value) {
+        shop_code = value['Shop_code'];
+        shopName = value['shop_name'];
+      });
       getHistory();
       setState(() {});
     }
@@ -144,9 +168,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
       await MyApp().getOrderType().then((value) => orderType = value);
       //----------------  shopOrder -----------------//
       if (orderType == 0) {
-        await MyApp()
-            .getShopDetails()
-            .then((value) => shop_code = value['Shop_code']);
+        isExecutive = true;
+        await MyApp().getShopDetails().then((value) {
+          shop_code = value['Shop_code'];
+          shopName = value['shop_name'];
+        });
+        getHistory();
         setState(() {});
       }
       //-------------------- Distributor Order -----------------//
@@ -158,5 +185,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         setState(() {});
       }
     }
+  }
+
+  downloadPressed(ordrId) async {
+    await ApiServices().downloadOrderHistory(context, orderType, ordrId);
   }
 }

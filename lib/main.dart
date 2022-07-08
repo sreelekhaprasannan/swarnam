@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,8 +14,12 @@ import 'Services/LoadData/loadingData.dart';
 import 'View/AppColors/appColors.dart';
 import 'View/Login/loginScreen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug:
+          true // optional: set to false to disable printing logs to console (default: true)
+      );
   runApp(const MyApp());
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: App_Colors().appLightBlue,
@@ -247,7 +252,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarColor(App_Colors().appLightBlue);
+    FlutterStatusbarcolor.setStatusBarColor(App_Colors().appTextColorYellow);
     return
         // ChangeNotifierProvider(
         //     create: (context) => LoadData(),

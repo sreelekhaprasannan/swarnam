@@ -127,7 +127,10 @@ class _LoginHomeState extends State<LoginHome> {
                                           MaterialStateProperty.all(
                                               App_Colors().appTextColorViolet)),
                                   onPressed: () {},
-                                  child: Text('Target'))),
+                                  child: AppWidgets().text(
+                                      text: 'Target',
+                                      textsize: 16,
+                                      color: App_Colors().appBackground1))),
                         ],
                       ),
                       // Padding(padding: EdgeInsets.all(10)),
@@ -162,29 +165,30 @@ class _LoginHomeState extends State<LoginHome> {
           ]),
       child: DropdownButton(
         underline: Container(),
-        hint: Center(child: Text('Select OrderType')),
+        hint: Center(child: AppWidgets().text(text: 'Select OrderType')),
         isExpanded: true,
         value: selectedOrderType,
         items: listofOrderType!
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: Text(
-                    e,
+                  child: AppWidgets().text(
+                    text: e,
                     maxLines: 1,
                   ),
                   alignment: Alignment.center,
                 ))
             .toList(),
-        onChanged: (value) {
-          setState(() {
-            selectedOrderType = value!.toString();
-            if (selectedOrderType == 'Distributor Order') {
-              MyApp().saveOrderType(1);
-            }
-            if (selectedOrderType == 'Shop Order') {
-              MyApp().saveOrderType(0);
-            }
-          });
+        onChanged: (value) async {
+          selectedOrderType = value!.toString();
+          if (selectedOrderType == 'Distributor Order') {
+            await MyApp().saveOrderType(1);
+            selectedExecutive = null;
+          }
+          if (selectedOrderType == 'Shop Order') {
+            await MyApp().saveOrderType(0);
+          }
+
+          setState(() {});
         },
       ),
     );
@@ -208,13 +212,13 @@ class _LoginHomeState extends State<LoginHome> {
       child: DropdownButton(
         elevation: 5,
         underline: Container(),
-        hint: Center(child: Text('Select Executive')),
+        hint: Center(child: AppWidgets().text(text: 'Select Executive')),
         isExpanded: true,
         items: executives
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: Text(
-                    e,
+                  child: AppWidgets().text(
+                    text: e,
                     maxLines: 1,
                   ),
                   alignment: Alignment.center,
@@ -225,6 +229,8 @@ class _LoginHomeState extends State<LoginHome> {
           setState(() {
             selectedExecutive = value!.toString();
             getDistributorsList(selectedExecutive);
+            selectedDistributor = null;
+            selectedRoute = null;
           });
         },
         value: selectedExecutive,
@@ -252,13 +258,13 @@ class _LoginHomeState extends State<LoginHome> {
       child: DropdownButton(
         elevation: 5,
         underline: Container(),
-        hint: Center(child: Text('Select Distributor')),
+        hint: Center(child: AppWidgets().text(text: 'Select Distributor')),
         isExpanded: true,
         items: distributorList
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: Text(
-                    e,
+                  child: AppWidgets().text(
+                    text: e,
                     maxLines: 1,
                   ),
                   alignment: Alignment.center,
@@ -267,6 +273,7 @@ class _LoginHomeState extends State<LoginHome> {
         onChanged: (value) async {
           await MyApp().saveSelectedDistributor(value.toString());
           setState(() {
+            selectedRoute = null;
             selectedDistributor = value!.toString();
             getRouteList(selectedDistributor);
           });
@@ -292,13 +299,13 @@ class _LoginHomeState extends State<LoginHome> {
           ]),
       child: DropdownButton(
         underline: Container(),
-        hint: Center(child: Text('Select Route')),
+        hint: Center(child: AppWidgets().text(text: 'Select Route')),
         isExpanded: true,
         items: routeList
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: Text(
-                    e,
+                  child: AppWidgets().text(
+                    text: e,
                     maxLines: 1,
                   ),
                   alignment: Alignment.center,
@@ -342,7 +349,7 @@ class _LoginHomeState extends State<LoginHome> {
                   }
                   if (selectedOrderType == 'Distributor Order') {
                     if (selectedExecutive == '' || selectedExecutive == null) {
-                      EasyLoading.showToast('Select Route',
+                      EasyLoading.showToast('Select Executive',
                           duration: Duration(seconds: 1));
                     } else {
                       await MyApp().saveSelectedExecutive(selectedExecutive!);
@@ -468,8 +475,8 @@ class _LoginHomeState extends State<LoginHome> {
     }
   }
 
-  getExecutiveList() {
-    LocalStorage().getExecutive().then((value) {
+  getExecutiveList() async {
+    await LocalStorage().getExecutive().then((value) {
       if (executives.length != 0) {
         executives.clear();
       }
@@ -483,7 +490,7 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Future getDistributorsList(executive) async {
-    LocalStorage().getDistributors(executive).then(
+    await LocalStorage().getDistributors(executive).then(
       (value) {
         distributorList.clear();
         for (var i in value) {
@@ -495,7 +502,7 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   Future getRouteList(distributor) async {
-    LocalStorage().getRouteList(distributor).then((value) {
+    await LocalStorage().getRouteList(distributor).then((value) {
       routeList.clear();
       for (var i in value) {
         routeList.add(i);

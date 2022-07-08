@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
+import 'package:swarnamordermanagement/View/Order/orderHistoryPage.dart';
 import 'package:swarnamordermanagement/main.dart';
 
 import '../../Model/Distributor/distributorModel.dart';
@@ -98,7 +99,17 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                             Expanded(
                               flex: 1,
                               child: Row(
-                                children: [FaIcon(FontAwesomeIcons.history)],
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    OrderHistoryPage())));
+                                      },
+                                      icon: Icon(Icons.history))
+                                ],
                               ),
                             ),
                             Expanded(

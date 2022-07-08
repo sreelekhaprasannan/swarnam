@@ -114,7 +114,8 @@ class _NewOrderShopState extends State<NewOrderShop> {
                         onPressed: () {
                           orderButtonPressed();
                         },
-                        child: Text('ORDER')))
+                        child: AppWidgets().text(
+                            text: 'ORDER', color: App_Colors().appBackground1)))
               ],
             ),
             Expanded(
@@ -154,12 +155,11 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                         flex: 3,
                                         child: Container(
                                             decoration: BoxDecoration(),
-                                            child: Text(
-                                              '${itemOrderList[index].item}',
-                                              style: GoogleFonts.notoSans(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
-                                            )),
+                                            child: AppWidgets().text(
+                                                text:
+                                                    '${itemOrderList[index].item}',
+                                                textsize: 14,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Expanded(
                                         flex: 1,
@@ -169,12 +169,11 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                             //             style: BorderStyle.solid)
                                             // ),
                                             alignment: Alignment.centerRight,
-                                            child: Text(
-                                                '${itemOrderList[index].qty}',
-                                                style: GoogleFonts.notoSans(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                            child: AppWidgets().text(
+                                                text:
+                                                    '${itemOrderList[index].qty}',
+                                                textsize: 16,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Expanded(
                                           flex: 2,
@@ -188,12 +187,12 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                               //         border: Border.all(
                                               //             style: BorderStyle.solid)),
                                               alignment: Alignment.centerRight,
-                                              child: Text(
-                                                  '${itemOrderList[index].rate}',
-                                                  style: GoogleFonts.notoSans(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold)))),
+                                              child: AppWidgets().text(
+                                                  text:
+                                                      '${itemOrderList[index].rate}',
+                                                  textsize: 16,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
                                       Expanded(
                                         flex: 2,
                                         child: Container(
@@ -221,15 +220,14 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        content: Text(
-                                            "Are you sure you want to delete ${itemOrderList[index].item}?"),
+                                        content: AppWidgets().text(
+                                            text:
+                                                "Are you sure you want to delete ${itemOrderList[index].item}?"),
                                         actions: [
                                           FlatButton(
-                                            child: Text(
-                                              "Cancel",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.black),
-                                            ),
+                                            child: AppWidgets().text(
+                                                text: "Cancel",
+                                                color: Colors.black),
                                             onPressed: () {
                                               setState(() {
                                                 Navigator.of(context)
@@ -238,10 +236,9 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                             },
                                           ),
                                           FlatButton(
-                                            child: Text(
-                                              "Delete",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.red),
+                                            child: AppWidgets().text(
+                                              text: "Delete",
+                                              color: Colors.red,
                                             ),
                                             onPressed: () {
                                               // TODO: Delete the item from DB etc..
@@ -270,10 +267,9 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                         ),
                                         actions: [
                                           FlatButton(
-                                            child: Text(
-                                              "Cancel",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.black),
+                                            child: AppWidgets().text(
+                                              text: "Cancel",
+                                              color: Colors.black,
                                             ),
                                             onPressed: () {
                                               setState(() {
@@ -283,10 +279,9 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                             },
                                           ),
                                           FlatButton(
-                                            child: Text(
-                                              "Ok",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.green),
+                                            child: AppWidgets().text(
+                                              text: "Ok",
+                                              color: Colors.green,
                                             ),
                                             onPressed: () {
                                               NewOrderListShop shopOrder =
@@ -369,8 +364,8 @@ class _NewOrderShopState extends State<NewOrderShop> {
   calculateAmount(qty, rate) {
     var amount = int.parse(qty) * double.parse(rate);
 
-    return Text('$amount',
-        style: GoogleFonts.notoSans(fontSize: 16, fontWeight: FontWeight.bold));
+    return AppWidgets()
+        .text(text: '$amount', textsize: 16, fontWeight: FontWeight.bold);
   }
 
   //--------- when the List Container Swipes from Left to Right ---------//

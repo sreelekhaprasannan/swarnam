@@ -212,10 +212,14 @@ class ApiServices {
   Future getShopHistory(BuildContext context, shop_code) async {
     var response;
     var distributorOrderList;
-    response = await getResponse(context, 'shop.get_shop_orders',
-        body: {'shop': '$shop_code'});
-    distributorOrderList = jsonDecode(response.body);
-    return distributorOrderList['message'];
+    try {
+      response = await getResponse(context, 'shop.get_shop_orders',
+          body: {'shop': '$shop_code'});
+      distributorOrderList = jsonDecode(response.body);
+      return distributorOrderList['message'];
+    } catch (e) {
+      EasyLoading.showToast('Check Your Net Connection');
+    }
   }
 
   placeOrderDistributor(
@@ -237,5 +241,10 @@ class ApiServices {
         EasyLoading.showToast('Connection Error');
       }
     }
+  }
+
+  downloadOrderHistory(BuildContext context, ordertype, orderId) async {
+    await getResponse(context, 'generic.get_order_pdf',
+        body: {"order_type": ordertype, "order_name": orderId});
   }
 }

@@ -57,6 +57,10 @@ dependencies:
   sqflite: ^2.0.2+1
   # for path Povider
   path_provider: ^2.0.11
+  # for download file
+  flutter_downloader: ^1.8.0+1
+  file_downloader: ^0.0.1
+  
 
 dev_dependencies:
   flutter_test:

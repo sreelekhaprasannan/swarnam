@@ -14,6 +14,7 @@ import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
+import '../Widgets/appWidgets.dart';
 
 class ItemOrderPage1 extends StatefulWidget {
   const ItemOrderPage1({Key? key}) : super(key: key);
@@ -67,10 +68,9 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
             // color: App_Colors().appBlue,
             alignment: Alignment.center,
             width: MediaQuery.of(context).size.width,
-            child: Text(
-              'Add Items',
-              style: GoogleFonts.notoSans(
-                  fontSize: 25, fontWeight: FontWeight.w800),
+            child: AppWidgets().text(
+              text: 'Add Items',
+              textsize: 25,
             ),
           )),
           Padding(padding: EdgeInsets.only(top: 5, bottom: 5)),
@@ -82,16 +82,16 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
               tabs: itemGroupTabs,
               controller: tabController,
               onTap: (i) {
-                setState(() {
-                  selectedItemGroup = itemGroupList[i].toString();
-                  itemGroupitemList.clear();
-                  // print('print from setState ${itemList}');
-                  itemList.forEach((element) {
-                    if (element.item_group == selectedItemGroup) {
-                      itemGroupitemList.add(element);
-                    }
-                  });
+                selectedItemGroup = itemGroupList[i].toString();
+                itemGroupitemList.clear();
+                // print('print from setState ${itemList}');
+                itemList.forEach((element) async {
+                  if (element.item_group == selectedItemGroup) {
+                    itemGroupitemList.add(element);
+                  }
                 });
+
+                setState(() {});
                 // getItemList();
                 // getTextEditingControllerList();
               },
@@ -124,21 +124,22 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                     Expanded(
                                         flex: 4,
                                         child: Container(
-                                          child: Text(
-                                            // 'name',
-                                            '${itemGroupitemList[index].item_name}',
-                                            style: TextStyle(fontSize: 16),
-                                          ),
+                                          child: AppWidgets().text(
+                                              text:
+                                                  // 'name',
+                                                  '${itemGroupitemList[index].item_name}',
+                                              maxLines: 3,
+                                              textsize: 14),
                                         )),
                                     Expanded(
                                         flex: 3,
                                         child: Container(
                                           alignment: Alignment.centerRight,
-                                          child: Text(
-                                            // 'rate',
-                                            '${itemGroupitemList[index].item_price}',
-                                            style: TextStyle(fontSize: 18),
-                                          ),
+                                          child: AppWidgets().text(
+                                              text:
+                                                  // 'rate',
+                                                  '${itemGroupitemList[index].item_price}',
+                                              textsize: 18),
                                         )),
                                     Padding(
                                         padding: EdgeInsets.all(
@@ -154,17 +155,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                           decoration: InputDecoration(
                                             border: OutlineInputBorder(),
                                           ),
-                                          onChanged: (value) {
-                                            for (var i in itemList) {
-                                              if (i.item_code ==
-                                                  itemGroupitemList[index]
-                                                      .item_code) {
-                                                i.qtyController.text =
-                                                    value.toString();
-                                              }
-                                            }
-                                            setState(() {});
-                                          },
                                         ),
                                       ),
                                     )
@@ -191,7 +181,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                     onPressed: () {
                       addButtonPressed();
                     },
-                    child: Text('ADD'),
+                    child: AppWidgets().text(text: 'ADD'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             App_Colors().appTextColorViolet)))),

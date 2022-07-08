@@ -10,6 +10,7 @@ import '../../Services/API/apiServices.dart';
 import '../../Services/Database/localStorage.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
+import '../Widgets/appWidgets.dart';
 import 'newDistributorOrderPage.dart';
 
 class ItemOrderPage extends StatefulWidget {
@@ -68,11 +69,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
               color: App_Colors().appBlue,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              child: Text(
-                'Add Items',
-                style: GoogleFonts.notoSans(
-                    fontSize: 25, fontWeight: FontWeight.w800),
-              ),
+              child: AppWidgets().text(text: 'Add Items', textsize: 25),
             )),
             Padding(padding: EdgeInsets.only(top: 5, bottom: 5)),
             Expanded(
@@ -112,21 +109,19 @@ class ItemOrderPageState extends State<ItemOrderPage>
                                     Expanded(
                                         flex: 4,
                                         child: Container(
-                                          child: Text(
-                                            '${itemList[index]['item_name']}',
-                                            style: GoogleFonts.notoSans(
-                                                fontSize: 16),
-                                          ),
+                                          child: AppWidgets().text(
+                                              text:
+                                                  '${itemList[index]['item_name']}',
+                                              textsize: 16),
                                         )),
                                     Expanded(
                                         flex: 3,
                                         child: Container(
                                           alignment: Alignment.centerRight,
-                                          child: Text(
-                                            '${itemList[index]['rate']}',
-                                            style: GoogleFonts.notoSans(
-                                                fontSize: 18),
-                                          ),
+                                          child: AppWidgets().text(
+                                              text:
+                                                  '${itemList[index]['rate']}',
+                                              textsize: 18),
                                         )),
                                     Padding(
                                         padding: EdgeInsets.all(
@@ -164,7 +159,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
                       onPressed: () {
                         addButtonPressed();
                       },
-                      child: Text('ADD'),
+                      child: AppWidgets().text(text: 'ADD'),
                       style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
                               App_Colors().appTextColorYellow)))),
@@ -181,9 +176,8 @@ class ItemOrderPageState extends State<ItemOrderPage>
         child: Container(
           color: App_Colors().appBlue,
           alignment: Alignment.center,
-          child: Text(
-            text,
-            style: GoogleFonts.notoSans(fontWeight: FontWeight.bold),
+          child: AppWidgets().text(
+            text: text,
           ),
         ));
   }

@@ -114,7 +114,10 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                         onPressed: () {
                           orderButtonPressed();
                         },
-                        child: Text('ORDERS')))
+                        child: AppWidgets().text(
+                            text: 'ORDERS',
+                            color: App_Colors().appBackground1,
+                            textsize: 16)))
               ],
             ),
             Expanded(
@@ -154,11 +157,11 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                         flex: 3,
                                         child: Container(
                                             decoration: BoxDecoration(),
-                                            child: Text(
-                                              '${itemOrderList[index].item}',
-                                              style: GoogleFonts.notoSans(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
+                                            child: AppWidgets().text(
+                                              text:
+                                                  '${itemOrderList[index].item}',
+                                              textsize: 14,
+                                              fontWeight: FontWeight.bold,
                                             )),
                                       ),
                                       Expanded(
@@ -169,12 +172,11 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                             //             style: BorderStyle.solid)
                                             // ),
                                             alignment: Alignment.centerRight,
-                                            child: Text(
-                                                '${itemOrderList[index].qty}',
-                                                style: GoogleFonts.notoSans(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                            child: AppWidgets().text(
+                                                text:
+                                                    '${itemOrderList[index].qty}',
+                                                textsize: 16,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Expanded(
                                           flex: 2,
@@ -188,12 +190,12 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                               //         border: Border.all(
                                               //             style: BorderStyle.solid)),
                                               alignment: Alignment.centerRight,
-                                              child: Text(
-                                                  '${itemOrderList[index].rate}',
-                                                  style: GoogleFonts.notoSans(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold)))),
+                                              child: AppWidgets().text(
+                                                  text:
+                                                      '${itemOrderList[index].rate}',
+                                                  textsize: 16,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
                                       Expanded(
                                         flex: 2,
                                         child: Container(
@@ -221,15 +223,14 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        content: Text(
-                                            "Are you sure you want to delete ${itemOrderList[index].item}?"),
+                                        content: AppWidgets().text(
+                                            text:
+                                                "Are you sure you want to delete ${itemOrderList[index].item}?"),
                                         actions: [
                                           FlatButton(
-                                            child: Text(
-                                              "Cancel",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.black),
-                                            ),
+                                            child: AppWidgets().text(
+                                                text: "Cancel",
+                                                color: Colors.black),
                                             onPressed: () {
                                               setState(() {
                                                 Navigator.of(context)
@@ -238,11 +239,9 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                             },
                                           ),
                                           FlatButton(
-                                            child: Text(
-                                              "Delete",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.red),
-                                            ),
+                                            child: AppWidgets().text(
+                                                text: "Delete",
+                                                color: Colors.red),
                                             onPressed: () {
                                               // TODO: Delete the item from DB etc..
                                               setState(() {
@@ -271,11 +270,9 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                         ),
                                         actions: [
                                           FlatButton(
-                                            child: Text(
-                                              "Cancel",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.black),
-                                            ),
+                                            child: AppWidgets().text(
+                                                text: "Cancel",
+                                                color: Colors.black),
                                             onPressed: () {
                                               setState(() {
                                                 Navigator.of(context)
@@ -284,11 +281,9 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                             },
                                           ),
                                           FlatButton(
-                                            child: Text(
-                                              "Ok",
-                                              style: GoogleFonts.notoSans(
-                                                  color: Colors.green),
-                                            ),
+                                            child: AppWidgets().text(
+                                                text: "Ok",
+                                                color: Colors.green),
                                             onPressed: () {
                                               NewOrderListDistributor
                                                   distributorOrder =
@@ -357,8 +352,8 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
   calculateAmount(qty, rate) {
     var amount = int.parse(qty) * double.parse(rate);
 
-    return Text('$amount',
-        style: GoogleFonts.notoSans(fontSize: 16, fontWeight: FontWeight.bold));
+    return AppWidgets()
+        .text(text: '$amount', textsize: 16, fontWeight: FontWeight.bold);
   }
 
 //--------- when the List Container Swipes from Left to Right ---------//
@@ -485,6 +480,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
           duration: Duration(seconds: 1));
       setState(() {});
     } else {
+      await getEecutive();
       List<Map> li = [];
       itemOrderList.forEach((element) {
         li.add({
