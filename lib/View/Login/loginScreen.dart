@@ -23,7 +23,10 @@ class LoginScreenState extends State<LoginScreen> {
   final loginBloc = LoginBloc();
   Timer? timer;
   var username, password;
-  bool iswrongCredential = false, isVisible = false, isloading = false;
+  bool iswrongCredential = false,
+      isVisible = false,
+      isloading = false,
+      isLogedin = false;
 
   LoadData? loadData;
 
@@ -34,6 +37,7 @@ class LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     // loadData = Provider.of<LoadData>(context, listen: false);
     EasyLoading.addStatusCallback((status) {
       print('EasyLoading Status $status');
@@ -41,6 +45,7 @@ class LoginScreenState extends State<LoginScreen> {
         timer?.cancel();
       }
     });
+  
   }
 
   @override
@@ -270,7 +275,7 @@ class LoginScreenState extends State<LoginScreen> {
                 );
               },
               pageBuilder: (context, animation, secAnimation) {
-                return LoginHome();
+                return  LoginHome();
               }));
         } else {
           iswrongCredential = true;
@@ -304,4 +309,6 @@ class LoginScreenState extends State<LoginScreen> {
     var usercredentials = {"User": "$username", "password": "$password"};
     return usercredentials;
   }
+
+  
 }

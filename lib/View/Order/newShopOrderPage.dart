@@ -96,7 +96,16 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                 ]),
                           ),
                           flex: 5,
-                        )
+                        ),
+                        ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    App_Colors().appTextColorViolet)),
+                            onPressed: () {},
+                            child: AppWidgets().text(
+                                text: 'VISITED',
+                                color: App_Colors().appBackground1)),
+                        Padding(padding: EdgeInsets.all(5))
                       ],
                     ),
                   ),
@@ -118,11 +127,10 @@ class _NewOrderShopState extends State<NewOrderShop> {
                             text: 'ORDER', color: App_Colors().appBackground1)))
               ],
             ),
+            Padding(padding: EdgeInsets.all(10)),
             Expanded(
                 flex: 18,
                 child: Container(
-                  margin: EdgeInsets.all(5),
-                  padding: EdgeInsets.all(5),
                   child: ListView.builder(
                       itemCount: itemOrderList.length,
                       itemBuilder: ((context, index) {
@@ -136,17 +144,15 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                   padding: EdgeInsets.all(5),
                                   alignment: Alignment.center,
                                   height:
-                                      MediaQuery.of(context).size.height / 10,
+                                      MediaQuery.of(context).size.height / 12,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(15),
                                       color: Colors
                                           .white, //App_Colors().appBackground1,
                                       boxShadow: [
                                         BoxShadow(
-                                            color: Color.fromARGB(
-                                                    255, 116, 113, 113)
-                                                .withOpacity(0.3),
-                                            blurRadius: 15,
+                                            color: Colors.grey.withOpacity(0.3),
+                                            blurRadius: 5,
                                             spreadRadius: 2)
                                       ]),
                                   child: Row(
@@ -159,7 +165,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                                 text:
                                                     '${itemOrderList[index].item}',
                                                 textsize: 14,
-                                                fontWeight: FontWeight.bold)),
+                                                fontWeight: FontWeight.w500)),
                                       ),
                                       Expanded(
                                         flex: 1,
@@ -173,7 +179,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                                 text:
                                                     '${itemOrderList[index].qty}',
                                                 textsize: 16,
-                                                fontWeight: FontWeight.bold)),
+                                                fontWeight: FontWeight.w500)),
                                       ),
                                       Expanded(
                                           flex: 2,
@@ -192,7 +198,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                                       '${itemOrderList[index].rate}',
                                                   textsize: 16,
                                                   fontWeight:
-                                                      FontWeight.bold))),
+                                                      FontWeight.w500))),
                                       Expanded(
                                         flex: 2,
                                         child: Container(
@@ -365,7 +371,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
     var amount = int.parse(qty) * double.parse(rate);
 
     return AppWidgets()
-        .text(text: '$amount', textsize: 16, fontWeight: FontWeight.bold);
+        .text(text: '$amount', textsize: 16, fontWeight: FontWeight.w500);
   }
 
   //--------- when the List Container Swipes from Left to Right ---------//
@@ -432,7 +438,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
   Future getList() async {
     bool isItemPresent = false;
     await LocalStorage()
-        .getShopOrderListDb(shopDetails['Shop_code'])
+        .getShopOrderListDb(shopDetails['Shop_code'], 0)
         .then((value) {
       totalAmount = 0;
       itemOrderList.clear();

@@ -113,16 +113,24 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                         // print(index);
                         if (itemGroupitemList.length > index) {
                           return Container(
-                            color: App_Colors().appBackground1,
-                            padding: EdgeInsets.all(8),
-                            height: MediaQuery.of(context).size.height / 8,
+                            margin: EdgeInsets.only(bottom: 3, top: 2),
+                            decoration: BoxDecoration(
+                                color: App_Colors().appWhite,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                      offset: Offset(2, 3),
+                                      color: Colors.grey.withOpacity(.3))
+                                ]),
+                            padding: EdgeInsets.all(10),
+                            height: MediaQuery.of(context).size.height / 12,
                             child: Column(children: [
                               Expanded(
                                 flex: 5,
                                 child: Row(
                                   children: [
                                     Expanded(
-                                        flex: 4,
+                                        flex: 5,
                                         child: Container(
                                           child: AppWidgets().text(
                                               text:
@@ -137,13 +145,14 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                           alignment: Alignment.centerRight,
                                           child: AppWidgets().text(
                                               text:
-                                                  // 'rate',
                                                   '${itemGroupitemList[index].item_price}',
                                               textsize: 18),
                                         )),
                                     Padding(
-                                        padding: EdgeInsets.all(
-                                            MediaQuery.of(context).size.width /
+                                        padding: EdgeInsets.only(
+                                            right: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
                                                 12)),
                                     Expanded(
                                       flex: 2,
@@ -157,7 +166,13 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                           ),
                                         ),
                                       ),
-                                    )
+                                    ),
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            right: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                30)),
                                   ],
                                 ),
                               )
@@ -181,7 +196,8 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                     onPressed: () {
                       addButtonPressed();
                     },
-                    child: AppWidgets().text(text: 'ADD'),
+                    child: AppWidgets()
+                        .text(text: 'ADD', color: App_Colors().appBackground1),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             App_Colors().appTextColorViolet)))),
@@ -268,6 +284,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
           shopOrderlist.shop_code = shop_code;
           shopOrderlist.rate = i.item_price;
           shopOrderlist.distributor = distributor;
+          shopOrderlist.isSubmited = 0;
           shopOrderlist.latitude = position.latitude.toString();
           shopOrderlist.longitude = position.longitude.toString();
           await LocalStorage().insertToDB(itemsOrderListShop: shopOrderlist);

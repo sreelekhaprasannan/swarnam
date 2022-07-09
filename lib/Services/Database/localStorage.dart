@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
@@ -53,10 +54,13 @@ class LocalStorage {
     }
   }
 
-  Future<List<NewOrderListShop>> getShopOrderListDb(selectedShop) async {
+  Future<List<NewOrderListShop>> getShopOrderListDb(
+      selectedShop, status) async {
     Database db = await swarnamDB();
     List<Map<String, dynamic>> orderList = await db.query('itemsorderlistshop',
-        where: 'shop_code= ?', whereArgs: [selectedShop]);
+        where: 'shop_code= ? AND isSubmited=?',
+        whereArgs: [selectedShop, status],
+        distinct: true);
     // for(var ol in orderList){}
     return List.generate(orderList.length, (index) {
       return NewOrderListShop(
@@ -78,8 +82,8 @@ class LocalStorage {
     Database db = await swarnamDB();
     List<Map<String, dynamic>> orderList = await db.query(
         'itemsorderlistdistributor',
-        where: 'distributor_code= ?',
-        whereArgs: [distributor]);
+        where: 'distributor_code= ? AND isSubmited=?',
+        whereArgs: [distributor, 0]);
     // for(var ol in orderList){}
     return List.generate(orderList.length, (index) {
       return NewOrderListDistributor(
@@ -226,5 +230,56 @@ class LocalStorage {
         where: 'shop_code= ?', whereArgs: [selectedShop]);
   }
 
-  deleteItemfromDistributorOrder(shopDetail, String? item_code) {}
+  Future deleteDistributorOrder(selectedDistributor) async {
+    Database db = await swarnamDB();
+    db.delete('itemsorderlistdistributor',
+        where: 'distributor_code= ?', whereArgs: [selectedDistributor]);
+  }
+
+  deleteItemfromDistributorOrder(distributor, item_code) async {
+    Database db = await swarnamDB();
+    db.delete('itemsorderlistdistributor',
+        where: 'distributor_code = ? and item_code = ?',
+        whereArgs: [distributor, item_code]);
+  }
+
+  updateDistributor(distributor) async {
+    Database db = await swarnamDB();
+    db.update('itemsorderlistdistributor', {"isSubmited": 1},
+        where: 'distributor_code = ?', whereArgs: [distributor]);
+  }
+
+  getSubmittedordersinShop() async {
+    Database db = await swarnamDB();
+    List<Map<String, Object?>> submittedShopList = await db.query(
+        'itemsorderlistshop',
+        columns: ['shop_code'],
+        where: "isSubmited=?",
+        whereArgs: [1]);
+    print(submittedShopList);
+    if (submittedShopList.isNotEmpty) {
+      submittedShopList.forEach((element) async {
+        print('element:$element');
+        List li = [];
+        // await LocalStorage()
+        //     .getShopOrderListDb(element['shop_code'], 1)
+        //     .then((value) {
+        //   print(value);
+        //   for (var i in value) {
+        //     li.add({
+        //       "item_code": value,
+        //       "qty": double.parse(value.toString()),
+        //       "rate": double.parse(value.toString())
+        //     });
+        //   }
+        // });
+      });
+    }
+  }
+
+  updateShopOrder(shop) async {
+    Database db = await swarnamDB();
+    db.update('itemsorderlistshop', {"isSubmited": 1},
+        where: 'shop_code = ?', whereArgs: [shop]);
+  }
 }

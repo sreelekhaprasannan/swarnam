@@ -60,7 +60,16 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               itemCount: historyList.length,
               itemBuilder: ((context, index) {
                 return Container(
-                  margin: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: App_Colors().appWhite,
+                      boxShadow: [
+                        BoxShadow(
+                            offset: Offset(2, 2),
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2)
+                      ]),
+                  margin: EdgeInsets.all(5),
                   child: Column(
                     children: [
                       Row(
@@ -131,8 +140,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             historyList.add(i);
           }
         });
+        setState(() {});
       } catch (e) {}
-      setState(() {});
     }
     if (orderType == 1) {
       isExecutive = false;

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cron/cron.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -9,6 +10,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
+import 'package:swarnamordermanagement/View/Home/loginHome.dart';
 
 import 'Services/LoadData/loadingData.dart';
 import 'View/AppColors/appColors.dart';
@@ -16,11 +19,21 @@ import 'View/Login/loginScreen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final cron = Cron();
+
+  cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+    print(DateTime.now());
+    await LocalStorage().getSubmittedordersinShop();
+  });
+
+  cron.schedule(Schedule.parse('8-11 * * * *'), () async {
+    print('between every 8 and 11 minutes');
+  });
   await FlutterDownloader.initialize(
       debug:
           true // optional: set to false to disable printing logs to console (default: true)
       );
-  runApp(const MyApp());
+  runApp(MyApp());
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: App_Colors().appLightBlue,
   ));
@@ -73,7 +86,9 @@ Future getLocation() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
+  bool isLogedin = false;
 
   Future saveUserType(userType) async {
     var prefUser = await SharedPreferences.getInstance();
@@ -252,6 +267,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    getToken().then((value) {
+      if (value == null || value == '') {
+        isLogedin = false;
+      } else {
+        isLogedin = true;
+      }
+    });
     FlutterStatusbarcolor.setStatusBarColor(App_Colors().appTextColorYellow);
     return
         // ChangeNotifierProvider(
@@ -271,7 +293,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(), //LoginHome(),
+      home: isLogedin ? LoginScreen() : LoginHome(), //LoginHome(),
       builder: EasyLoading.init(),
       // )
     );

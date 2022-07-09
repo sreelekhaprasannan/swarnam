@@ -15,11 +15,13 @@ class NewOrderListDistributor {
       this.item_group,
       this.item,
       this.item_code,
+      this.isSubmited,
       this.rate,
       this.qty});
   Map<String, dynamic> toMap() {
     return {
       "id": id,
+      "isSubmited": isSubmited,
       "distributor_name": distributor_name,
       "item_group": item_group,
       "item_name": item,

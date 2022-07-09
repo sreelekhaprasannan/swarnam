@@ -512,12 +512,17 @@ class _LoginHomeState extends State<LoginHome> {
   }
 
   getAttendanceStatus() async {
-    await MyApp().getAttendaceStatus().then((value) {
-      if (value == null || value == '') {
-        attendanceStatus = 0;
-      } else {
-        attendanceStatus = value;
-      }
+    // await MyApp().getAttendaceStatus().then((value) {
+    //   if (value == null || value == '') {
+    //     attendanceStatus = 0;
+    //   } else {
+    //     attendanceStatus = value;
+    //   }
+    // });
+    // setState(() {});
+    await ApiServices().getAttendanceStatus(context).then((value) {
+      attendanceStatus = value['attendance'];
+      MyApp().saveAttendaceStatus(attendanceStatus);
     });
     setState(() {});
   }

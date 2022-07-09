@@ -38,14 +38,14 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
     return Scaffold(
       body: SafeArea(
           child: Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(10),
         child: Column(
           children: [
             Padding(padding: EdgeInsets.all(5)),
             Container(
               // margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(3),
-              height: MediaQuery.of(context).size.height / 5,
+              height: MediaQuery.of(context).size.height / 6,
               decoration: BoxDecoration(
                   color: App_Colors().appWhite,
                   borderRadius: BorderRadius.circular(20),
@@ -120,11 +120,12 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                             textsize: 16)))
               ],
             ),
+            Padding(padding: EdgeInsets.all(5)),
             Expanded(
                 flex: 12,
                 child: Container(
-                  margin: EdgeInsets.all(5),
-                  padding: EdgeInsets.all(5),
+                  // margin: EdgeInsets.all(2),
+                  // padding: EdgeInsets.all(3),
                   child: ListView.builder(
                       itemCount: itemOrderList.length,
                       itemBuilder: ((context, index) {
@@ -135,20 +136,19 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                             child: Column(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(5),
+                                  padding: EdgeInsets.all(3),
                                   alignment: Alignment.center,
                                   height:
-                                      MediaQuery.of(context).size.height / 10,
+                                      MediaQuery.of(context).size.height / 12,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
+                                      borderRadius: BorderRadius.circular(10),
                                       color: Colors
                                           .white, //App_Colors().appBackground1,
                                       boxShadow: [
                                         BoxShadow(
-                                            color: Color.fromARGB(
-                                                    255, 116, 113, 113)
-                                                .withOpacity(0.3),
-                                            blurRadius: 15,
+                                            offset: Offset(2, 3),
+                                            color: Colors.grey.withOpacity(0.3),
+                                            blurRadius: 1,
                                             spreadRadius: 2)
                                       ]),
                                   child: Row(
@@ -161,7 +161,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                               text:
                                                   '${itemOrderList[index].item}',
                                               textsize: 14,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w500,
                                             )),
                                       ),
                                       Expanded(
@@ -212,6 +212,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                                   ),
                                 ),
                                 Padding(padding: EdgeInsets.all(5)),
+                                SizedBox(height: 5)
                               ],
                             ),
                             background: slideRightBackground(),
@@ -493,16 +494,19 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
         ApiServices()
             .placeOrderDistributor(
                 context, distributorDetails['Distributor_code'], li, executive)
-            .then((value) {
+            .then((value) async {
           if (value['success']) {
-            LocalStorage()
-                .deleteShopOrder(distributorDetails['Distributor_code']);
+            await LocalStorage()
+                .deleteDistributorOrder(distributorDetails['Distributor_code']);
             itemOrderList.clear();
             EasyLoading.showToast('${value['message']}');
             setState(() {});
           }
         });
-      } catch (e) {}
+      } catch (e) {
+        await LocalStorage()
+            .updateDistributor(distributorDetails['Distributor_code']);
+      }
     }
   }
 

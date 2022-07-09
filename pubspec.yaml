@@ -60,7 +60,8 @@ dependencies:
   # for download file
   flutter_downloader: ^1.8.0+1
   file_downloader: ^0.0.1
-  
+  # for time based job scheduler
+  cron: ^0.5.0
 
 dev_dependencies:
   flutter_test:

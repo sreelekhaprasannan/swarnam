@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import 'package:swarnamordermanagement/Model/Distributor/distributorModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
@@ -75,6 +77,7 @@ class ApiServices {
         // MyApp().savePage('LoginScreen1()');
         // _SimpleUri (https://swarnam.frappe.cloud/api/method/swarnam.api.v1.generic.get_sales_executives)
         MyApp().saveAttendaceStatus(0);
+        MyApp().saveToken(null);
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => LoginScreen()));
       } else {
@@ -159,9 +162,10 @@ class ApiServices {
   getAttendanceStatus(BuildContext context) async {
     var response;
     var attendenceStatus;
-    response = await getResponse(context, 'generic.get_attendance_status');
+    response =
+        await getResponse(context, 'generic.get_attendance_status', body: {});
     attendenceStatus = jsonDecode(response.body);
-    print(attendenceStatus['message']);
+
     return attendenceStatus['message'];
   }
 
@@ -196,6 +200,7 @@ class ApiServices {
       } catch (e) {
         print(e);
         EasyLoading.showToast('Connection Error');
+        await LocalStorage().updateShopOrder(shop);
       }
     }
   }
@@ -237,14 +242,33 @@ class ApiServices {
         order = jsonDecode(response.body);
         return order['message'];
       } catch (e) {
-        print(e);
+        await LocalStorage().updateDistributor(distributor);
         EasyLoading.showToast('Connection Error');
       }
     }
   }
 
   downloadOrderHistory(BuildContext context, ordertype, orderId) async {
-    await getResponse(context, 'generic.get_order_pdf',
-        body: {"order_type": ordertype, "order_name": orderId});
+    var responce = await getResponse(context, 'generic.get_order_pdf_link',
+        body: {"order_type": ordertype, "order_id": orderId});
+    var result = await jsonDecode(responce.body);
+    var resulturl = result['message']['url'];
+    print(result);
+    String dir = (Platform.isAndroid
+            ? await getExternalStorageDirectory() //FOR ANDROID
+            : await getApplicationSupportDirectory())!
+        .path;
+    try {
+      final taskId = await FlutterDownloader.enqueue(
+        url: resulturl,
+        savedDir: '$dir',
+        showNotification:
+            true, // show download progress in status bar (for Android)
+        openFileFromNotification:
+            true, // click on notification to open downloaded file (for Android)
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 }
