@@ -17,18 +17,10 @@ import 'Services/LoadData/loadingData.dart';
 import 'View/AppColors/appColors.dart';
 import 'View/Login/loginScreen.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final cron = Cron();
-
-  cron.schedule(Schedule.parse('*/3 * * * *'), () async {
-    print(DateTime.now());
-    await LocalStorage().getSubmittedordersinShop();
-  });
-
-  cron.schedule(Schedule.parse('8-11 * * * *'), () async {
-    print('between every 8 and 11 minutes');
-  });
+ 
   await FlutterDownloader.initialize(
       debug:
           true // optional: set to false to disable printing logs to console (default: true)
@@ -190,10 +182,11 @@ class MyApp extends StatelessWidget {
 
   Future getDistributorsDetails() async {
     var distributorName, distributormobileno, distributor_code;
-    var prf_shopDetails = await SharedPreferences.getInstance();
-    distributorName = prf_shopDetails.getString('Distributor_Name');
-    distributormobileno = prf_shopDetails.getString('Distributor_Mobile');
-    distributor_code = prf_shopDetails.getString('Distributor_code');
+    var prf_distributorDetails = await SharedPreferences.getInstance();
+    distributorName = prf_distributorDetails.getString('Distributor_Name');
+    distributormobileno =
+        prf_distributorDetails.getString('Distributor_Mobile');
+    distributor_code = prf_distributorDetails.getString('Distributor_code');
     return {
       "Distributor_name": distributorName,
       "Distributor_Mobile": distributormobileno,
@@ -293,7 +286,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: isLogedin ? LoginScreen() : LoginHome(), //LoginHome(),
+      home: isLogedin ? LoginHome() : LoginScreen(), //LoginHome(),
       builder: EasyLoading.init(),
       // )
     );

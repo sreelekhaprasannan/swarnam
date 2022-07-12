@@ -40,12 +40,11 @@ class LoginScreenState extends State<LoginScreen> {
 
     // loadData = Provider.of<LoadData>(context, listen: false);
     EasyLoading.addStatusCallback((status) {
-      print('EasyLoading Status $status');
+      // print('EasyLoading Status $status');
       if (status == EasyLoadingStatus.dismiss) {
         timer?.cancel();
       }
     });
-  
   }
 
   @override
@@ -275,21 +274,21 @@ class LoginScreenState extends State<LoginScreen> {
                 );
               },
               pageBuilder: (context, animation, secAnimation) {
-                return  LoginHome();
+                return LoginHome();
               }));
         } else {
           iswrongCredential = true;
           timer?.cancel();
           await EasyLoading.showToast('${value['message']}',
               toastPosition: EasyLoadingToastPosition.bottom);
-          print('message : ${value['message']}');
+          // print('message : ${value['message']}');
           setState(() {
             isloading = false;
           });
         }
       });
     } catch (e) {
-      print(e);
+      // print(e);
       EasyLoading.showToast(
           'Please Check your Internet Connection \n And Try Again',
           dismissOnTap: true);
@@ -309,6 +308,4 @@ class LoginScreenState extends State<LoginScreen> {
     var usercredentials = {"User": "$username", "password": "$password"};
     return usercredentials;
   }
-
-  
 }

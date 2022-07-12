@@ -5,7 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
+import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
+import 'package:swarnamordermanagement/View/Home/loginHome.dart';
+import 'package:swarnamordermanagement/View/Login/loginScreen.dart';
 
 import '../../main.dart';
 
@@ -24,18 +27,23 @@ class AppWidgets extends StatefulWidget {
       color: App_Colors().appWhite,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         IconButton(
-            onPressed: () {},
-            icon: FaIcon(
-              size: MediaQuery.of(context).size.height / 23,
-              Icons.settings,
-              color: App_Colors().appTextColorYellow,
-            )),
-        IconButton(
             onPressed: () async {
               attendanceStatus = await markAttendance(context);
-              ApiServices().getAttendanceStatus(context);
+              await MyApp().saveAttendaceStatus(attendanceStatus);
+              LoginHome().createState();
             },
             icon: getAttendanceIcon(context, attendanceStatus)),
+        IconButton(
+            onPressed: () async {
+              await LocalStorage().logOutfromApp();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            icon: FaIcon(
+              size: MediaQuery.of(context).size.height / 23,
+              Icons.logout,
+              color: App_Colors().appTextColorYellow,
+            )),
       ]),
     );
   }
@@ -80,8 +88,8 @@ class AppWidgets extends StatefulWidget {
       int? maxLines = 1}) {
     return Text(
       '$text',
-      style: GoogleFonts.robotoSlab(
-          fontSize: textsize, color: color, fontWeight: fontWeight),
+      style:
+          TextStyle(fontSize: textsize, color: color, fontWeight: fontWeight),
       maxLines: maxLines,
     );
   }

@@ -1,8 +1,10 @@
+import 'package:cron/cron.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
@@ -10,6 +12,7 @@ import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
 import '../AppColors/appColors.dart';
+import '../Login/loginScreen.dart';
 import '../Order/distributorOrderPage.dart';
 
 class LoginHome extends StatefulWidget {
@@ -38,6 +41,19 @@ class _LoginHomeState extends State<LoginHome> {
     getUserType();
     getSallesPerson();
     getAttendanceStatus();
+    final cron = Cron();
+
+    cron.schedule(Schedule.parse('*/15 * * * *'), () async {
+      print(DateTime.now());
+      if (userType == 1) {
+        await LocalStorage().getSubmittedordersinDistributor(context);
+      }
+      await LocalStorage().getSubmittedordersinShop(context);
+    });
+
+    cron.schedule(Schedule.parse('8-11 * * * *'), () async {
+      print('between every 8 and 11 minutes');
+    });
   }
 
   @override
@@ -48,7 +64,7 @@ class _LoginHomeState extends State<LoginHome> {
           color: App_Colors().appWhite,
           child: Column(
             children: [
-              AppWidgets().appBar(context, attendanceStatus),
+              getAppBar(context),
               Expanded(
                 child: Container(
                     margin: EdgeInsets.only(left: 15, right: 15),
@@ -322,6 +338,10 @@ class _LoginHomeState extends State<LoginHome> {
     );
   }
 
+  getContext() {
+    return context;
+  }
+
   navigationCards() {
     return Container(
       margin: EdgeInsets.only(top: 15),
@@ -520,10 +540,79 @@ class _LoginHomeState extends State<LoginHome> {
     //   }
     // });
     // setState(() {});
-    await ApiServices().getAttendanceStatus(context).then((value) {
-      attendanceStatus = value['attendance'];
-      MyApp().saveAttendaceStatus(attendanceStatus);
+    try {
+      await ApiServices().getAttendanceStatus(context).then((value) {
+        attendanceStatus = value['attendance'];
+        MyApp().saveAttendaceStatus(attendanceStatus);
+      });
+      setState(() {});
+    } catch (e) {}
+  }
+
+  Widget getAppBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 2, right: 5),
+      height: MediaQuery.of(context).size.height / 20,
+      color: App_Colors().appWhite,
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        IconButton(
+            onPressed: () async {
+              attendanceStatus = await markAttendance(context);
+              await MyApp().saveAttendaceStatus(attendanceStatus);
+              LoginHome().createState();
+            },
+            icon: getAttendanceIcon(context, attendanceStatus)),
+        IconButton(
+            onPressed: () async {
+              await LocalStorage().logOutfromApp();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            icon: FaIcon(
+              size: MediaQuery.of(context).size.height / 23,
+              Icons.logout,
+              color: App_Colors().appTextColorYellow,
+            )),
+      ]),
+    );
+  }
+
+  markAttendance(context) async {
+    var status;
+    await MyApp().determinePosition();
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    await ApiServices().markAttendence(context, position).then((value) {
+      status = value['attendance'];
+      MyApp().saveAttendaceStatus(status);
+      EasyLoading.showToast('${value['message']}',
+          duration: Duration(seconds: 1));
     });
     setState(() {});
+    return status;
+  }
+
+  Widget getAttendanceIcon(context, attendanceStatus) {
+    if (attendanceStatus == 1) {
+      // late Attendance
+      return attendanceIcon(
+          context, FontAwesomeIcons.userClock, App_Colors().appLightBlue);
+    } else if (attendanceStatus == 2) {
+      // Present
+      return attendanceIcon(
+          context, FontAwesomeIcons.userCheck, App_Colors().appLightGreen);
+    } else {
+      // Absent
+      return attendanceIcon(
+          context, FontAwesomeIcons.userXmark, App_Colors().appRed);
+    }
+  }
+
+  FaIcon attendanceIcon(context, icon, color) {
+    return FaIcon(
+      icon,
+      size: MediaQuery.of(context).size.height / 28,
+      color: color,
+    );
   }
 }

@@ -85,7 +85,8 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                   children: [
                                     AppWidgets().text(
                                         text: '${distributorsList[index].name}',
-                                        textsize: 20,
+                                        maxLines: 2,
+                                        textsize: 18,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
                                         text:
@@ -108,10 +109,14 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                                 builder: ((context) =>
                                                     OrderHistoryPage())));
                                       },
-                                      icon: Icon(Icons.history))
+                                      icon: Icon(
+                                        Icons.history,
+                                        size: 40,
+                                      ))
                                 ],
                               ),
                             ),
+                            Padding(padding: EdgeInsets.all(3)),
                             Expanded(
                               flex: 2,
                               child: Row(

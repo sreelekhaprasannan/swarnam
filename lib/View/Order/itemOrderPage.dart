@@ -213,6 +213,7 @@ class ItemOrderPageState extends State<ItemOrderPage>
         if ((qtyController[index].text != '0') &&
             (qtyController[index].text != '')) {
           orderList.item_group = selectedItemGroup;
+          orderList.distributor = distributorName;
           orderList.item = itemList[index]['item_name'];
           orderList.item_code = itemList[index]['item_code'];
           orderList.rate = itemList[index]['rate'].toString();

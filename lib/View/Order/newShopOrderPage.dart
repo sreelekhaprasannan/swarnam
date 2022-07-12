@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
+import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/main.dart';
 
 import '../../Model/Order/shopOrderListModel.dart';
@@ -101,7 +103,19 @@ class _NewOrderShopState extends State<NewOrderShop> {
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(
                                     App_Colors().appTextColorViolet)),
-                            onPressed: () {},
+                            onPressed: () async {
+                              await MyApp().determinePosition();
+                              Position position =
+                                  await Geolocator.getCurrentPosition(
+                                      desiredAccuracy: LocationAccuracy.high);
+                              var executive, shop_code;
+                              await MyApp()
+                                  .getSelectedExecutive()
+                                  .then((value) => executive = value);
+                              await MyApp().getShopDetails().then((value) {
+                                shop_code = value['Shop_code'];
+                              });
+                            },
                             child: AppWidgets().text(
                                 text: 'VISITED',
                                 color: App_Colors().appBackground1)),
@@ -498,13 +512,18 @@ class _NewOrderShopState extends State<NewOrderShop> {
                 latitude, longitude)
             .then((value) {
           if (value['success']) {
-            LocalStorage().deleteShopOrder(shopDetails['Shop_code']);
+            LocalStorage().deleteShopOrder(shopDetails['Shop_code'], 0);
             itemOrderList.clear();
             EasyLoading.showToast('${value['message']}');
-            setState(() {});
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: ((context) => ShopOrderPage())));
           }
         });
-      } catch (e) {}
+      } catch (e) {
+        {
+          await LocalStorage().updateShopOrder(shopDetails['Shop_code']);
+        }
+      }
     }
   }
 

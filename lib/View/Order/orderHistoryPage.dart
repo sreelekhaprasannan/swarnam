@@ -1,6 +1,10 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:file_downloader/file_downloader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
@@ -21,12 +25,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   int? userType, orderType;
   List historyList = [];
   late bool isExecutive;
+  ReceivePort _port = ReceivePort();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    FileDownload().registerPortData(setState);
     getUserType();
+    FileDownload().registerPortData(setState);
   }
 
   @override
@@ -158,26 +163,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   }
 
   Future getUserType() async {
-    await MyApp().getUserType().then((value) => userType = value);
-    //------------------ When user is an executive ---------//
-    if (userType == 0) {
-      isExecutive = true;
-      //-------------- get the shop name ----------------//
-      orderType = 0;
-      await MyApp().getShopDetails().then((value) {
-        shop_code = value['Shop_code'];
-        shopName = value['shop_name'];
-      });
-      getHistory();
-      setState(() {});
-    }
-    // ---------------- When User is an Officer -------------//
-    if (userType == 1) {
-      isExecutive = false;
-      await MyApp().getOrderType().then((value) => orderType = value);
-      //----------------  shopOrder -----------------//
-      if (orderType == 0) {
+    await MyApp().getUserType().then((value) async {
+      userType = value;
+      //------------------ When user is an executive ---------//
+      if (userType == 0) {
         isExecutive = true;
+        //-------------- get the shop name ----------------//
+        orderType = 0;
         await MyApp().getShopDetails().then((value) {
           shop_code = value['Shop_code'];
           shopName = value['shop_name'];
@@ -185,15 +177,30 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         getHistory();
         setState(() {});
       }
-      //-------------------- Distributor Order -----------------//
-      if (orderType == 1) {
-        await MyApp()
-            .getSelectedDistributor()
-            .then((value) => distributorName = value);
-        getHistory();
-        setState(() {});
+      // ---------------- When User is an Officer -------------//
+      if (userType == 1) {
+        isExecutive = false;
+        await MyApp().getOrderType().then((value) => orderType = value);
+        //----------------  shopOrder -----------------//
+        if (orderType == 0) {
+          isExecutive = true;
+          await MyApp().getShopDetails().then((value) {
+            shop_code = value['Shop_code'];
+            shopName = value['shop_name'];
+          });
+          getHistory();
+          setState(() {});
+        }
+        //-------------------- Distributor Order -----------------//
+        if (orderType == 1) {
+          await MyApp()
+              .getSelectedDistributor()
+              .then((value) => distributorName = value);
+          getHistory();
+          setState(() {});
+        }
       }
-    }
+    });
   }
 
   downloadPressed(ordrId) async {

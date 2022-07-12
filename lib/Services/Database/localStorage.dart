@@ -6,6 +6,8 @@ import 'package:swarnamordermanagement/Model/Distributor/distributorModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
+import 'package:swarnamordermanagement/Services/API/apiServices.dart';
+import 'package:swarnamordermanagement/View/Home/loginHome.dart';
 
 import '../../Model/Order/distributorOrderList.dart';
 import '../../Model/Order/shopOrderListModel.dart';
@@ -22,9 +24,11 @@ class LocalStorage {
       await db.execute(
           "CREATE TABLE distributor_details(distributor_code TEXT,name TEXT,mobile TEXT,executive TEXT);");
       await db.execute(
-          "CREATE TABLE item_deiails(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
+          "CREATE TABLE item_details(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
       await db.execute(
           "CREATE TABLE shop_details(shop_code TEXT,name TEXT,branch TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
+      await db.execute(
+          "CREATE TABLE shop_visited(shop_code TEXT,executive TEXT,longitude TEXT,latitude Text)");
     }, version: 1);
     return swarnamDB;
   }
@@ -47,7 +51,7 @@ class LocalStorage {
       await db.insert('shop_details', shoplist.tomap());
     }
     if (itemModel != null) {
-      await db.insert('item_deiails', itemModel.tomap());
+      await db.insert('item_details', itemModel.tomap());
     }
     if (distributorModel != null) {
       await db.insert('distributor_details', distributorModel.tomap());
@@ -68,6 +72,7 @@ class LocalStorage {
           shop_code: orderList[index]['shop_code'],
           item_group: orderList[index]['item_group'],
           item: orderList[index]['item_name'],
+          distributor: orderList[index]['distributor'],
           item_code: orderList[index]['item_code'],
           rate: orderList[index]['rate'],
           latitude: orderList[index]['latitude'],
@@ -121,7 +126,7 @@ class LocalStorage {
     Database db = await swarnamDB();
     List distributors = await db.query('distributor_details',
         distinct: true, where: 'executive = ?', whereArgs: [executive]);
-    print(distributors);
+    // print(distributors);
     return List.generate(distributors.length, (index) {
       return DistributorModel(
           distributor_code: distributors[index]['distributor_code'],
@@ -136,7 +141,7 @@ class LocalStorage {
     Database db = await swarnamDB();
     Set itemGroups = {};
     List<Map<String, dynamic>> itemList = await db.query(
-      'item_deiails',
+      'item_details',
       distinct: true,
     );
     for (var i in itemList) {
@@ -161,7 +166,7 @@ class LocalStorage {
       where: 'executive=?',
       whereArgs: [executive],
     );
-    print(li);
+    // print(li);
     for (var i in li) {
       distributor.add(i['distributor']);
     }
@@ -203,10 +208,10 @@ class LocalStorage {
     Database db = await swarnamDB();
     List<ItemModel> items = [];
     List<Map<String, dynamic>> itemList = await db.query(
-      'item_deiails',
+      'item_details',
       distinct: true,
     );
-    print('itemList form database: $itemList');
+    // print('itemList form database: $itemList');
     for (var i in itemList) {
       items.add(ItemModel(
           item_code: i['item_code'].toString(),
@@ -224,10 +229,11 @@ class LocalStorage {
         whereArgs: [selectedShop, item_code]);
   }
 
-  Future deleteShopOrder(selectedShop) async {
+  Future deleteShopOrder(selectedShop, status) async {
     Database db = await swarnamDB();
     db.delete('itemsorderlistshop',
-        where: 'shop_code= ?', whereArgs: [selectedShop]);
+        where: 'shop_code= ? AND isSubmited=?',
+        whereArgs: [selectedShop, status]);
   }
 
   Future deleteDistributorOrder(selectedDistributor) async {
@@ -249,18 +255,49 @@ class LocalStorage {
         where: 'distributor_code = ?', whereArgs: [distributor]);
   }
 
-  getSubmittedordersinShop() async {
+  getSubmittedordersinShop(BuildContext context) async {
     Database db = await swarnamDB();
     List<Map<String, Object?>> submittedShopList = await db.query(
         'itemsorderlistshop',
         columns: ['shop_code'],
         where: "isSubmited=?",
+        distinct: true,
         whereArgs: [1]);
-    print(submittedShopList);
+    // print(submittedShopList);
     if (submittedShopList.isNotEmpty) {
       submittedShopList.forEach((element) async {
-        print('element:$element');
-        List li = [];
+        // print('element[shopcode]:${element['shop_code']}');
+        List<Map> li = [];
+        await LocalStorage()
+            .getShopOrderListDb(element['shop_code'], 1)
+            .then((value) async {
+          var distributor, shop_code, longitude, latitude;
+          distributor = value[0].distributor;
+          shop_code = value[0].shop_code;
+          latitude = value[0].latitude;
+          longitude = value[0].longitude;
+          // print(shop_code);
+          for (var i in value) {
+            li.add({"item_code": i.item_code, "qty": i.qty, "rate": i.rate});
+          }
+          // print(li);
+          try {
+            await ApiServices()
+                .placeOrderShop(
+                    context, shop_code, distributor, li, latitude, longitude)
+                .then((result) {
+              if (result['success'] == true) {
+                LocalStorage().deleteShopOrder(shop_code, 1);
+              }
+            });
+          } catch (e) {}
+        });
+
+        // if (element.length > 0) {
+        //   await LocalStorage()
+        //       .getShopOrderListDb(element, 1)
+        //       .then((value) => print(value));
+        // }
         // await LocalStorage()
         //     .getShopOrderListDb(element['shop_code'], 1)
         //     .then((value) {
@@ -282,4 +319,13 @@ class LocalStorage {
     db.update('itemsorderlistshop', {"isSubmited": 1},
         where: 'shop_code = ?', whereArgs: [shop]);
   }
+
+  logOutfromApp() async {
+    Database db = await swarnamDB();
+    await db.delete('distributor_details');
+    await db.delete('item_details');
+    await db.delete('shop_details');
+  }
+
+  getSubmittedordersinDistributor(BuildContext context) {}
 }

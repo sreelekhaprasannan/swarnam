@@ -162,11 +162,12 @@ class ApiServices {
   getAttendanceStatus(BuildContext context) async {
     var response;
     var attendenceStatus;
-    response =
-        await getResponse(context, 'generic.get_attendance_status', body: {});
-    attendenceStatus = jsonDecode(response.body);
-
-    return attendenceStatus['message'];
+    try {
+      response =
+          await getResponse(context, 'generic.get_attendance_status', body: {});
+      attendenceStatus = jsonDecode(response.body);
+      return attendenceStatus['message'];
+    } catch (e) {}
   }
 
   Future markAttendence(BuildContext context, Position position) async {
@@ -271,4 +272,11 @@ class ApiServices {
       print(e);
     }
   }
+  // visitedShops()async{
+  //    var response;
+  //     response = await getResponse(context, 'generic.mark_attendance', body: {
+  //     'longitude': '${position.longitude}',
+  //     'latitude': '${position.latitude}'
+  //   });
+  // }
 }

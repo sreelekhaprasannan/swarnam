@@ -271,6 +271,9 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
 
   void addButtonPressed() async {
     if (orderType == 0) {
+      await MyApp()
+          .getSelectedDistributor()
+          .then((value) => distributor = value);
       await MyApp().determinePosition();
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
@@ -320,5 +323,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     await MyApp()
         .getDistributorsDetails()
         .then((value) => distributorDetails = value);
+    setState(() {});
   }
 }
