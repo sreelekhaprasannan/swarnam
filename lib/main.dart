@@ -17,17 +17,24 @@ import 'Services/LoadData/loadingData.dart';
 import 'View/AppColors/appColors.dart';
 import 'View/Login/loginScreen.dart';
 
-
+bool isLogedin = false;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
- 
+
   await FlutterDownloader.initialize(
       debug:
           true // optional: set to false to disable printing logs to console (default: true)
       );
+  await MyApp().getToken().then((value) {
+    if (value == null || value == '') {
+      isLogedin = false;
+    } else {
+      isLogedin = true;
+    }
+  });
   runApp(MyApp());
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: App_Colors().appLightBlue,
+    statusBarColor: App_Colors().appStatuusBarColor,
   ));
   configLoading();
   getLocation();
@@ -80,8 +87,6 @@ Future getLocation() async {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  bool isLogedin = false;
-
   Future saveUserType(userType) async {
     var prefUser = await SharedPreferences.getInstance();
     await prefUser.setInt('User', userType);
@@ -112,6 +117,9 @@ class MyApp extends StatelessWidget {
   Future getToken() async {
     var prf_Token = await SharedPreferences.getInstance();
     String? token = prf_Token.getString('token');
+    if (token != null) {
+      isLogedin = true;
+    }
     return token;
   }
 
@@ -126,9 +134,9 @@ class MyApp extends StatelessWidget {
     return person;
   }
 
-  Future saveSelectedRoute(String route) async {
+  Future saveSelectedRoute(String? route) async {
     var prefSelectedRoute = await SharedPreferences.getInstance();
-    await prefSelectedRoute.setString('route', route);
+    await prefSelectedRoute.setString('route', route!);
   }
 
   Future getSelectedRoute() async {
@@ -137,9 +145,9 @@ class MyApp extends StatelessWidget {
     return route;
   }
 
-  Future saveAttendaceStatus(int attendanceStatus) async {
+  Future saveAttendaceStatus(int? attendanceStatus) async {
     var prefSelectedRoute = await SharedPreferences.getInstance();
-    await prefSelectedRoute.setInt('Attendance', attendanceStatus);
+    await prefSelectedRoute.setInt('Attendance', attendanceStatus!);
   }
 
   Future getAttendaceStatus() async {
@@ -148,9 +156,9 @@ class MyApp extends StatelessWidget {
     return attendanceStatus;
   }
 
-  Future saveSelectedExecutive(String executive) async {
+  Future saveSelectedExecutive(String? executive) async {
     var prf_SelectedExcutive = await SharedPreferences.getInstance();
-    await prf_SelectedExcutive.setString('Executive', executive);
+    await prf_SelectedExcutive.setString('Executive', executive!);
   }
 
   Future getSelectedExecutive() async {
@@ -267,7 +275,7 @@ class MyApp extends StatelessWidget {
         isLogedin = true;
       }
     });
-    FlutterStatusbarcolor.setStatusBarColor(App_Colors().appTextColorYellow);
+    FlutterStatusbarcolor.setStatusBarColor(App_Colors().appStatuusBarColor);
     return
         // ChangeNotifierProvider(
         //     create: (context) => LoadData(),

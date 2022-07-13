@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Order/orderHistoryPage.dart';
@@ -20,10 +21,12 @@ class DisributorOrderPage extends StatefulWidget {
 
 class _DisributorOrderPageState extends State<DisributorOrderPage> {
   List<DistributorModel> distributorsList = [];
+  int? attendanceStatus;
   @override
   void initState() {
     // TODO: implement initState
     getDistributorsList();
+    getAttendanceStatus();
     super.initState();
   }
 
@@ -74,7 +77,9 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                     itemBuilder: ((context, index) {
                       return Container(
                         padding: EdgeInsets.all(15),
-                        color: App_Colors().appShopBackGround,
+                        decoration: BoxDecoration(
+                            color: App_Colors().appShopBackGround,
+                            borderRadius: BorderRadius.circular(8)),
                         margin: EdgeInsets.all(3),
                         child: Row(
                           children: [
@@ -86,12 +91,12 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                     AppWidgets().text(
                                         text: '${distributorsList[index].name}',
                                         maxLines: 2,
-                                        textsize: 18,
+                                        textsize: 16,
                                         color: App_Colors().appTextColorViolet),
                                     AppWidgets().text(
                                         text:
                                             '${distributorsList[index].mobile}',
-                                        textsize: 14,
+                                        textsize: 13,
                                         color: App_Colors().appTextColorViolet),
                                     Padding(padding: EdgeInsets.all(5))
                                   ]),
@@ -102,7 +107,17 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                               child: Row(
                                 children: [
                                   IconButton(
-                                      onPressed: () {
+                                      onPressed: () async {
+                                        await MyApp().saveDistributorDetails(
+                                            distributorsList[index]
+                                                .distributor_code
+                                                .toString(),
+                                            distributorsList[index]
+                                                .name
+                                                .toString(),
+                                            distributorsList[index]
+                                                .mobile
+                                                .toString());
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -111,7 +126,7 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                       },
                                       icon: Icon(
                                         Icons.history,
-                                        size: 40,
+                                        size: 35,
                                       ))
                                 ],
                               ),
@@ -139,11 +154,16 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
                                               distributorsList[index]
                                                   .mobile
                                                   .toString());
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      NewOrderDistributor())));
+                                          if (attendanceStatus != 0) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        NewOrderDistributor())));
+                                          } else {
+                                            EasyLoading.showToast(
+                                                'Please Mark Your Attendance');
+                                          }
                                         },
                                         child: AppWidgets().text(
                                             textsize: 12,
@@ -173,5 +193,11 @@ class _DisributorOrderPageState extends State<DisributorOrderPage> {
       }
     });
     setState(() {});
+  }
+
+  getAttendanceStatus() async {
+    await MyApp()
+        .getAttendaceStatus()
+        .then((value) => attendanceStatus = value);
   }
 }

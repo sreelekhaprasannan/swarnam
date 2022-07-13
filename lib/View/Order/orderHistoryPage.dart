@@ -40,7 +40,16 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: App_Colors().appTextColorViolet,
-          title: isExecutive ? Text('$shopName') : Text('$distributorName'),
+          title: AppWidgets().text(
+              text: isExecutive ? '$shopName' : '$distributorName',
+              color: App_Colors().appBackground1,
+              textsize: 16),
+          // title: isExecutive
+          //     ? Text()
+          //     : Text(
+          //         ,
+          //         textScaleFactor: 2,
+          //       ),
         ),
         body: Container(
           margin: EdgeInsets.all(10),
@@ -193,9 +202,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         }
         //-------------------- Distributor Order -----------------//
         if (orderType == 1) {
-          await MyApp()
-              .getSelectedDistributor()
-              .then((value) => distributorName = value);
+          await MyApp().getDistributorsDetails().then((value) {
+            distributorName = value['Distributor_name'];
+          });
           getHistory();
           setState(() {});
         }

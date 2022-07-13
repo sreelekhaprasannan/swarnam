@@ -22,6 +22,7 @@ class NewOrderListDistributor {
     return {
       "id": id,
       "isSubmited": isSubmited,
+      "distributor_code": distributor_code,
       "distributor_name": distributor_name,
       "item_group": item_group,
       "item_name": item,

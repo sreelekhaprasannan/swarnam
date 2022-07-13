@@ -76,8 +76,8 @@ class ApiServices {
       if (response.statusCode == 403) {
         // MyApp().savePage('LoginScreen1()');
         // _SimpleUri (https://swarnam.frappe.cloud/api/method/swarnam.api.v1.generic.get_sales_executives)
-        MyApp().saveAttendaceStatus(0);
-        MyApp().saveToken(null);
+
+        await LocalStorage().logOutfromApp();
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => LoginScreen()));
       } else {
@@ -87,8 +87,8 @@ class ApiServices {
       EasyLoading.showToast('Check Your Internet Conectivity',
           dismissOnTap: true);
     } catch (e) {
-      EasyLoading.showToast('Connection Error!!!',
-          duration: Duration(seconds: 1));
+      // EasyLoading.showToast('Connection Error!!!',
+      //     duration: Duration(seconds: 1));
     }
   }
 
@@ -127,16 +127,18 @@ class ApiServices {
         body: {});
 
     result = jsonDecode(response.body);
+    var i;
     distributorList = result['message']['distributors'];
-    print(distributorList);
     DistributorModel disributors = DistributorModel();
-    distributorList.forEach((element) async {
+    for (var element in distributorList) {
       disributors.distributor_code = element['distributor_code'];
       disributors.executive = element['sales_person'];
       disributors.name = element['distributor_name'];
       disributors.mobile = element['mobile_no'];
       await LocalStorage().insertToDB(distributorModel: disributors);
-    });
+      print(disributors);
+      print(element);
+    }
   }
 
   getItemList(BuildContext context) async {
@@ -228,8 +230,8 @@ class ApiServices {
     }
   }
 
-  placeOrderDistributor(
-      BuildContext context, distributor, List<Map> orderlist, executive) async {
+  placeOrderDistributor(BuildContext context,
+      {distributor, required List<Map> orderlist, executive}) async {
     var response;
     if (orderlist.isNotEmpty) {
       var order;
@@ -272,9 +274,25 @@ class ApiServices {
       print(e);
     }
   }
+
+  shopVisit(BuildContext context,
+      {shop_code, executive, longitude, latitude}) async {
+    var response, result;
+    response = await getResponse(context, 'shop.shop_visit', body: {
+      'shop_code': '$shop_code',
+      'sales_person': '$executive',
+      'latitude': '$latitude',
+      'longitude': '$longitude'
+    });
+    print(response);
+    result = jsonDecode(response.body);
+    if (result['message']['success']) {
+      EasyLoading.showToast('${result['message']['message']}');
+    }
+  }
   // visitedShops()async{
   //    var response;
-  //     response = await getResponse(context, 'generic.mark_attendance', body: {
+  //
   //     'longitude': '${position.longitude}',
   //     'latitude': '${position.latitude}'
   //   });

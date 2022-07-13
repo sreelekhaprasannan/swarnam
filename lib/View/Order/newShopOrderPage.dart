@@ -47,16 +47,17 @@ class _NewOrderShopState extends State<NewOrderShop> {
             Container(
               // margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(3),
-              height: MediaQuery.of(context).size.height / 6,
+              height: MediaQuery.of(context).size.height / 7,
               decoration: BoxDecoration(
                   color: App_Colors().appWhite,
+                  border: Border.all(color: App_Colors().appBackground1),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        // offset: Offset(1.0, 1.0),
+                        offset: Offset(0, 2),
                         color: Colors.grey.withOpacity(0.2),
                         blurRadius: 1,
-                        spreadRadius: 3),
+                        spreadRadius: 1),
                   ]),
               child: Column(
                 children: [
@@ -115,6 +116,11 @@ class _NewOrderShopState extends State<NewOrderShop> {
                               await MyApp().getShopDetails().then((value) {
                                 shop_code = value['Shop_code'];
                               });
+                              await ApiServices().shopVisit(context,
+                                  shop_code: shop_code,
+                                  executive: executive,
+                                  latitude: position.latitude,
+                                  longitude: position.longitude);
                             },
                             child: AppWidgets().text(
                                 text: 'VISITED',
@@ -366,7 +372,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
     return FloatingActionButton(
       backgroundColor: App_Colors().appTextColorViolet,
       onPressed: () {
-        Navigator.push(
+        Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => ItemOrderPage1()));
       },
       child: Icon(Icons.add),
@@ -524,6 +530,10 @@ class _NewOrderShopState extends State<NewOrderShop> {
           await LocalStorage().updateShopOrder(shopDetails['Shop_code']);
         }
       }
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => ShopOrderPage()),
+          (route) => false);
     }
   }
 

@@ -50,10 +50,6 @@ class _LoginHomeState extends State<LoginHome> {
       }
       await LocalStorage().getSubmittedordersinShop(context);
     });
-
-    cron.schedule(Schedule.parse('8-11 * * * *'), () async {
-      print('between every 8 and 11 minutes');
-    });
   }
 
   @override
@@ -116,6 +112,22 @@ class _LoginHomeState extends State<LoginHome> {
                   distributorDropDown(),
                   Padding(padding: EdgeInsets.all(15)),
                   routeDropDown(),
+                  Padding(padding: EdgeInsets.all(8)),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      App_Colors().appTextColorViolet)),
+                              onPressed: () {},
+                              child: AppWidgets().text(
+                                  text: 'Target',
+                                  textsize: 16,
+                                  color: App_Colors().appBackground1))),
+                    ],
+                  ),
                   navigationCards()
                 ]),
               ));
@@ -137,6 +149,7 @@ class _LoginHomeState extends State<LoginHome> {
                       Row(
                         children: [
                           Expanded(
+                              flex: 1,
                               child: ElevatedButton(
                                   style: ButtonStyle(
                                       backgroundColor:
@@ -196,9 +209,9 @@ class _LoginHomeState extends State<LoginHome> {
             .toList(),
         onChanged: (value) async {
           selectedOrderType = value!.toString();
+          selectedExecutive = null;
           if (selectedOrderType == 'Distributor Order') {
             await MyApp().saveOrderType(1);
-            selectedExecutive = null;
           }
           if (selectedOrderType == 'Shop Order') {
             await MyApp().saveOrderType(0);

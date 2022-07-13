@@ -100,7 +100,7 @@ class LoginScreenState extends State<LoginScreen> {
                 right: 0,
                 left: 0,
                 child: Container(
-                  padding: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(18),
                   height: MediaQuery.of(context).size.height / 7,
                   width: MediaQuery.of(context).size.width / 7,
                   decoration: BoxDecoration(
@@ -131,6 +131,7 @@ class LoginScreenState extends State<LoginScreen> {
           child: Column(children: [
             SizedBox(height: 5),
             TextFormField(
+                cursorColor: App_Colors().appTextColorYellow,
                 controller: usernameController,
                 style: TextStyle(
                     color: App_Colors().appTextColorYellow, fontSize: 20),
@@ -159,7 +160,7 @@ class LoginScreenState extends State<LoginScreen> {
             //                  Password TextField                       //
             TextFormField(
                 controller: passwordController,
-                cursorColor: Colors.white,
+                cursorColor: App_Colors().appTextColorYellow,
                 obscureText: !isVisible,
                 keyboardType: TextInputType.visiblePassword,
                 style: TextStyle(

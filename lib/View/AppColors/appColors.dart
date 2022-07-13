@@ -18,4 +18,5 @@ class App_Colors {
   final Color appReportBackGround = Color.fromARGB(255, 254, 221, 124);
   final Color appTextColorViolet = Color.fromARGB(255, 92, 67, 139);
   final Color appBackground1 = Color.fromARGB(244, 247, 244, 231);
+  final Color appStatuusBarColor = Color.fromARGB(255, 255, 203, 5);
 }

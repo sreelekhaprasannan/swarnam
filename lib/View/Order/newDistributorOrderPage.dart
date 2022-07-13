@@ -45,13 +45,13 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
             Container(
               // margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(3),
-              height: MediaQuery.of(context).size.height / 6,
+              height: MediaQuery.of(context).size.height / 7,
               decoration: BoxDecoration(
                   color: App_Colors().appWhite,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        // offset: Offset(1.0, 1.0),
+                        offset: Offset(0, 1.0),
                         color: Colors.grey.withOpacity(0.2),
                         blurRadius: 1,
                         spreadRadius: 3),
@@ -442,7 +442,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
   Future getList() async {
     bool isItemPresent = false;
     await LocalStorage()
-        .getDistributorOrderListDb(distributorDetails['Distributor_code'])
+        .getDistributorOrderListDb(distributorDetails['Distributor_code'], 0)
         .then((value) {
       totalAmount = 0;
       itemOrderList.clear();
@@ -492,12 +492,14 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
       });
       try {
         ApiServices()
-            .placeOrderDistributor(
-                context, distributorDetails['Distributor_code'], li, executive)
+            .placeOrderDistributor(context,
+                distributor: distributorDetails['Distributor_code'],
+                orderlist: li,
+                executive: executive)
             .then((value) async {
           if (value['success']) {
-            await LocalStorage()
-                .deleteDistributorOrder(distributorDetails['Distributor_code']);
+            await LocalStorage().deleteDistributorOrder(
+                distributorDetails['Distributor_code'], 0);
             itemOrderList.clear();
             EasyLoading.showToast('${value['message']}');
             setState(() {});
@@ -506,7 +508,14 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
       } catch (e) {
         await LocalStorage()
             .updateDistributor(distributorDetails['Distributor_code']);
+        itemOrderList.clear();
+        EasyLoading.showToast(
+            'You are ofline now \n Order wil be created latter',
+            duration: Duration(seconds: 2),
+            toastPosition: EasyLoadingToastPosition.bottom);
       }
+      itemOrderList.clear();
+      Navigator.pop(context);
     }
   }
 

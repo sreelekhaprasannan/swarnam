@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
@@ -22,12 +23,14 @@ class ShopOrderPage extends StatefulWidget {
 class _ShopOrderPageState extends State<ShopOrderPage> {
   List<ShopModel> shopList = [];
   String? executive, distributor, route;
+  int? attendanceStatus;
   var userType;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getshopList();
+    getAttenanceStatus();
   }
 
   @override
@@ -63,7 +66,7 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30)),
-                  suffixIcon: FaIcon(FontAwesomeIcons.search, size: 32)),
+                  suffixIcon: FaIcon(FontAwesomeIcons.search, size: 25)),
             ),
           )),
           Expanded(
@@ -76,7 +79,10 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                     itemBuilder: ((context, index) {
                       return Container(
                         padding: EdgeInsets.all(15),
-                        color: App_Colors().appShopBackGround,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: App_Colors().appShopBackGround,
+                        ),
                         margin: EdgeInsets.all(3),
                         child: Row(
                           children: [
@@ -147,11 +153,16 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                               shopList[index].name.toString(),
                                               shopList[index].branch.toString(),
                                               shopList[index].phone.toString());
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      NewOrderShop()));
+                                          if (attendanceStatus != 0) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        NewOrderShop()));
+                                          } else {
+                                            EasyLoading.showToast(
+                                                'Please Mark Your Attendance');
+                                          }
                                         },
                                         child: AppWidgets().text(
                                             textsize: 12,
@@ -192,6 +203,13 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
     //
     //   shopList = value['shops'];
     // });
+    setState(() {});
+  }
+
+  getAttenanceStatus() async {
+    await MyApp()
+        .getAttendaceStatus()
+        .then((value) => attendanceStatus = value);
     setState(() {});
   }
 }

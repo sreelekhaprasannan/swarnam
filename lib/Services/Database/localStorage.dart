@@ -11,6 +11,7 @@ import 'package:swarnamordermanagement/View/Home/loginHome.dart';
 
 import '../../Model/Order/distributorOrderList.dart';
 import '../../Model/Order/shopOrderListModel.dart';
+import '../../main.dart';
 
 class LocalStorage {
   Future<Database> swarnamDB() async {
@@ -40,8 +41,8 @@ class LocalStorage {
       ShopModel? shoplist,
       ItemModel? itemModel}) async {
     Database db = await swarnamDB();
-    if (itemsOrderListShop != null) {
-      await db.insert('itemsorderlistshop', itemsOrderListShop.toMap());
+    if (await itemsOrderListShop != null) {
+      await db.insert('itemsorderlistshop', itemsOrderListShop!.toMap());
     }
     if (itemOrderListDistributor != null) {
       await db.insert(
@@ -53,8 +54,9 @@ class LocalStorage {
     if (itemModel != null) {
       await db.insert('item_details', itemModel.tomap());
     }
-    if (distributorModel != null) {
-      await db.insert('distributor_details', distributorModel.tomap());
+    if (await distributorModel != null) {
+      await db.insert('distributor_details', distributorModel!.tomap());
+      return 1;
     }
   }
 
@@ -83,16 +85,17 @@ class LocalStorage {
   }
 
   Future<List<NewOrderListDistributor>> getDistributorOrderListDb(
-      distributor) async {
+      distributor, status) async {
     Database db = await swarnamDB();
     List<Map<String, dynamic>> orderList = await db.query(
         'itemsorderlistdistributor',
         where: 'distributor_code= ? AND isSubmited=?',
-        whereArgs: [distributor, 0]);
+        whereArgs: [distributor, status]);
     // for(var ol in orderList){}
     return List.generate(orderList.length, (index) {
       return NewOrderListDistributor(
           id: orderList[index]['id'].toString(),
+          distributor_code: orderList[index]['distributor_code'],
           distributor_name: orderList[index]['distributor_name'],
           item_group: orderList[index]['item_group'],
           item: orderList[index]['item_name'],
@@ -166,7 +169,7 @@ class LocalStorage {
       where: 'executive=?',
       whereArgs: [executive],
     );
-    // print(li);
+    print(li.length);
     for (var i in li) {
       distributor.add(i['distributor']);
     }
@@ -236,7 +239,7 @@ class LocalStorage {
         whereArgs: [selectedShop, status]);
   }
 
-  Future deleteDistributorOrder(selectedDistributor) async {
+  Future deleteDistributorOrder(selectedDistributor, status) async {
     Database db = await swarnamDB();
     db.delete('itemsorderlistdistributor',
         where: 'distributor_code= ?', whereArgs: [selectedDistributor]);
@@ -292,24 +295,6 @@ class LocalStorage {
             });
           } catch (e) {}
         });
-
-        // if (element.length > 0) {
-        //   await LocalStorage()
-        //       .getShopOrderListDb(element, 1)
-        //       .then((value) => print(value));
-        // }
-        // await LocalStorage()
-        //     .getShopOrderListDb(element['shop_code'], 1)
-        //     .then((value) {
-        //   print(value);
-        //   for (var i in value) {
-        //     li.add({
-        //       "item_code": value,
-        //       "qty": double.parse(value.toString()),
-        //       "rate": double.parse(value.toString())
-        //     });
-        //   }
-        // });
       });
     }
   }
@@ -321,11 +306,58 @@ class LocalStorage {
   }
 
   logOutfromApp() async {
+    await MyApp().saveAttendaceStatus(0);
+    await MyApp().saveToken(null);
+    await MyApp().saveDistributorDetails(null, null, null);
+    await MyApp().saveOrderType(null);
+    await MyApp().saveSalesPerson(null);
+    await MyApp().saveSelectedDistributor(null);
+    await MyApp().saveSelectedExecutive(null);
+    await MyApp().saveSelectedExecutive(null);
+    await MyApp().saveSelectedRoute(null);
+    await MyApp().saveUserType(null);
+    await MyApp().saveShopDetails(null, null, null, null);
     Database db = await swarnamDB();
     await db.delete('distributor_details');
     await db.delete('item_details');
     await db.delete('shop_details');
   }
 
-  getSubmittedordersinDistributor(BuildContext context) {}
+  getSubmittedordersinDistributor(BuildContext context) async {
+    Database db = await swarnamDB();
+    List<Map<String, Object?>> submittedDistributorList = await db.query(
+        'itemsorderlistdistributor',
+        columns: ['distributor_code'],
+        where: "isSubmited=?",
+        distinct: true,
+        whereArgs: [1]);
+    // print(submittedShopList);
+    if (submittedDistributorList.isNotEmpty) {
+      submittedDistributorList.forEach((element) async {
+        // print('element[shopcode]:${element['shop_code']}');
+        List<Map> li = [];
+        await LocalStorage()
+            .getDistributorOrderListDb(element['distributor_code'], 1)
+            .then((value) async {
+          var distributor;
+          distributor = value[0].distributor_code;
+          // print(shop_code);
+          for (var i in value) {
+            li.add({"item_code": i.item_code, "qty": i.qty, "rate": i.rate});
+          }
+          // print(li);
+          try {
+            await ApiServices()
+                .placeOrderDistributor(context,
+                    orderlist: li, distributor: distributor)
+                .then((result) {
+              if (result['success'] == true) {
+                LocalStorage().deleteDistributorOrder(distributor, 1);
+              }
+            });
+          } catch (e) {}
+        });
+      });
+    }
+  }
 }
