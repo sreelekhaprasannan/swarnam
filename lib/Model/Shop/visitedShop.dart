@@ -3,7 +3,7 @@ class VisitedShop {
   String? executive;
   String? longitude;
   String? latitude;
-  VisitedShop(this.shop_code, this.executive, this.latitude, this.longitude);
+  VisitedShop({this.shop_code, this.executive, this.latitude, this.longitude});
   Map<String, dynamic> tomap() {
     return {
       "shop_code": shop_code,

@@ -70,25 +70,18 @@ class ApiServices {
     var response;
     await getToken();
     var url = Uri.parse('$urlHead' + '$pathname' + '$endpoint');
-    try {
-      response = await http.post(url, headers: headers, body: jsonEncode(body));
 
-      if (response.statusCode == 403) {
-        // MyApp().savePage('LoginScreen1()');
-        // _SimpleUri (https://swarnam.frappe.cloud/api/method/swarnam.api.v1.generic.get_sales_executives)
+    response = await http.post(url, headers: headers, body: jsonEncode(body));
 
-        await LocalStorage().logOutfromApp();
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginScreen()));
-      } else {
-        return response;
-      }
-    } on SocketException {
-      EasyLoading.showToast('Check Your Internet Conectivity',
-          dismissOnTap: true);
-    } catch (e) {
-      // EasyLoading.showToast('Connection Error!!!',
-      //     duration: Duration(seconds: 1));
+    if (response.statusCode == 403) {
+      // MyApp().savePage('LoginScreen1()');
+      // _SimpleUri (https://swarnam.frappe.cloud/api/method/swarnam.api.v1.generic.get_sales_executives)
+
+      await LocalStorage().logOutfromApp();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    } else {
+      return response;
     }
   }
 
@@ -97,25 +90,30 @@ class ApiServices {
     Map result = {};
     var li;
     List<ShopModel> shopList = [];
+    try {
+      response = await getResponse(context, 'shop.get_all_shops', body: {});
+      result = jsonDecode(response.body);
+      li = result['message'];
+      ShopModel shopdetais = ShopModel();
+      shopList.clear();
+      for (var i in li['shops']) {
+        shopdetais.shop_code = i['shop_code'].toString();
+        shopdetais.name = i['name'].toString();
+        shopdetais.branch = i['branch'].toString();
+        shopdetais.phone = i['mobile_number'].toString();
+        shopdetais.route = i['route'].toString();
+        shopdetais.distributor = i['distributor'].toString();
+        shopdetais.executive = i['sales_person'].toString();
+        await LocalStorage().insertToDB(shoplist: shopdetais);
+        // print(shopdetais);
+      }
 
-    response = await getResponse(context, 'shop.get_all_shops', body: {});
-    result = jsonDecode(response.body);
-    li = result['message'];
-    ShopModel shopdetais = ShopModel();
-    shopList.clear();
-    for (var i in li['shops']) {
-      shopdetais.shop_code = i['shop_code'].toString();
-      shopdetais.name = i['name'].toString();
-      shopdetais.branch = i['branch'].toString();
-      shopdetais.phone = i['mobile_number'].toString();
-      shopdetais.route = i['route'].toString();
-      shopdetais.distributor = i['distributor'].toString();
-      shopdetais.executive = i['sales_person'].toString();
-      await LocalStorage().insertToDB(shoplist: shopdetais);
-      print(shopdetais);
+      return result['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
     }
-
-    return result['message'];
   }
 
   //get_distributor_master
@@ -123,42 +121,54 @@ class ApiServices {
     var response;
     Map result = {};
     List distributorList = [];
-    response = await getResponse(context, 'distributor.get_distributor_master',
-        body: {});
-
-    result = jsonDecode(response.body);
-    var i;
-    distributorList = result['message']['distributors'];
-    DistributorModel disributors = DistributorModel();
-    for (var element in distributorList) {
-      disributors.distributor_code = element['distributor_code'];
-      disributors.executive = element['sales_person'];
-      disributors.name = element['distributor_name'];
-      disributors.mobile = element['mobile_no'];
-      await LocalStorage().insertToDB(distributorModel: disributors);
-      print(disributors);
-      print(element);
+    try {
+      response = await getResponse(
+          context, 'distributor.get_distributor_master',
+          body: {});
+      result = jsonDecode(response.body);
+      var i;
+      distributorList = result['message']['distributors'];
+      DistributorModel disributors = DistributorModel();
+      for (var element in distributorList) {
+        disributors.distributor_code = element['distributor_code'];
+        disributors.executive = element['sales_person'];
+        disributors.name = element['distributor_name'];
+        disributors.mobile = element['mobile_no'];
+        await LocalStorage().insertToDB(distributorModel: disributors);
+        // print(disributors);
+        // print(element);
+      }
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
     }
   }
 
   getItemList(BuildContext context) async {
     Map result = {};
     List<ItemModel> itemList = [];
-    var response =
-        await getResponse(context, 'generic.get_item_master', body: {});
-    result = jsonDecode(response.body);
-    var li = result['message']['items'];
-    ItemModel itemdetais = ItemModel();
-    itemList.clear();
-    for (var i in li) {
-      itemdetais.item_code = i['item_code'].toString();
-      itemdetais.item_name = i['item_name'].toString();
-      itemdetais.item_group = i['item_group'].toString();
-      itemdetais.item_Price = i['rate'].toString();
-      await LocalStorage().insertToDB(itemModel: itemdetais);
-    }
+    try {
+      var response =
+          await getResponse(context, 'generic.get_item_master', body: {});
+      result = jsonDecode(response.body);
+      var li = result['message']['items'];
+      ItemModel itemdetais = ItemModel();
+      itemList.clear();
+      for (var i in li) {
+        itemdetais.item_code = i['item_code'].toString();
+        itemdetais.item_name = i['item_name'].toString();
+        itemdetais.item_group = i['item_group'].toString();
+        itemdetais.item_Price = i['rate'].toString();
+        await LocalStorage().insertToDB(itemModel: itemdetais);
+      }
 
-    return result['message'];
+      return result['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
+    }
   }
 
   getAttendanceStatus(BuildContext context) async {
@@ -169,19 +179,29 @@ class ApiServices {
           await getResponse(context, 'generic.get_attendance_status', body: {});
       attendenceStatus = jsonDecode(response.body);
       return attendenceStatus['message'];
-    } catch (e) {}
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
+    }
   }
 
   Future markAttendence(BuildContext context, Position position) async {
     var response;
     var attendencedetails;
-    response = await getResponse(context, 'generic.mark_attendance', body: {
-      'longitude': '${position.longitude}',
-      'latitude': '${position.latitude}'
-    });
-    attendencedetails = jsonDecode(response.body);
-    print(attendencedetails['message']);
-    return attendencedetails['message'];
+    try {
+      response = await getResponse(context, 'generic.mark_attendance', body: {
+        'longitude': '${position.longitude}',
+        'latitude': '${position.latitude}'
+      });
+      attendencedetails = jsonDecode(response.body);
+      // print(attendencedetails['message']);
+      return attendencedetails['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
+    }
   }
 
   Future placeOrderShop(BuildContext context, shop, distributor, orderlist,
@@ -197,13 +217,15 @@ class ApiServices {
           'shop_code': '${shop}',
           'items': orderlist
         });
-        print('$orderlist');
+        // print('$orderlist');
         order = jsonDecode(response.body);
         return order['message'];
-      } catch (e) {
-        print(e);
-        EasyLoading.showToast('Connection Error');
+      } on SocketException catch (e) {
         await LocalStorage().updateShopOrder(shop);
+        EasyLoading.showToast(
+            'You are Offline \n Your Orders willbe Updated Latter');
+      } catch (e) {
+        EasyLoading.showToast('Something Went Wrong');
       }
     }
   }
@@ -211,10 +233,17 @@ class ApiServices {
   Future getDistributorHistory(BuildContext context, distributor) async {
     var response;
     var distributorOrderList;
-    response = await getResponse(context, 'distributor.get_distributor_orders',
-        body: {'distributor': '$distributor'});
-    distributorOrderList = jsonDecode(response.body);
-    return distributorOrderList['message'];
+    try {
+      response = await getResponse(
+          context, 'distributor.get_distributor_orders',
+          body: {'distributor': '$distributor'});
+      distributorOrderList = jsonDecode(response.body);
+      return distributorOrderList['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
+    }
   }
 
   Future getShopHistory(BuildContext context, shop_code) async {
@@ -225,8 +254,10 @@ class ApiServices {
           body: {'shop': '$shop_code'});
       distributorOrderList = jsonDecode(response.body);
       return distributorOrderList['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
     } catch (e) {
-      EasyLoading.showToast('Check Your Net Connection');
+      EasyLoading.showToast('Something Went Wrong');
     }
   }
 
@@ -241,27 +272,33 @@ class ApiServices {
           'sales_person': '${executive}',
           'items': orderlist
         });
-        print('$orderlist');
+        // print('$orderlist');
         order = jsonDecode(response.body);
         return order['message'];
-      } catch (e) {
+      } on SocketException catch (e) {
         await LocalStorage().updateDistributor(distributor);
-        EasyLoading.showToast('Connection Error');
+        EasyLoading.showToast(
+            'You are Offline\n Your Orders will be Created Latter');
+      } catch (e) {
+        EasyLoading.showToast('Something Went Wrong');
       }
     }
   }
 
   downloadOrderHistory(BuildContext context, ordertype, orderId) async {
-    var responce = await getResponse(context, 'generic.get_order_pdf_link',
-        body: {"order_type": ordertype, "order_id": orderId});
-    var result = await jsonDecode(responce.body);
-    var resulturl = result['message']['url'];
-    print(result);
-    String dir = (Platform.isAndroid
-            ? await getExternalStorageDirectory() //FOR ANDROID
-            : await getApplicationSupportDirectory())!
-        .path;
     try {
+      var responce = await getResponse(context, 'generic.get_order_pdf_link',
+          body: {"order_type": ordertype, "order_id": orderId});
+      var result = await jsonDecode(responce.body);
+      var resulturl = result['message']['url'];
+      // print(result);
+      // Directory().create().then((value) {
+      //   Directory directory = value;
+      // });
+      String dir = (Platform.isAndroid
+              ? await getExternalStorageDirectory() //FOR ANDROID
+              : await getApplicationSupportDirectory())!
+          .path;
       final taskId = await FlutterDownloader.enqueue(
         url: resulturl,
         savedDir: '$dir',
@@ -270,8 +307,10 @@ class ApiServices {
         openFileFromNotification:
             true, // click on notification to open downloaded file (for Android)
       );
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
     } catch (e) {
-      print(e);
+      EasyLoading.showToast('Something Went Wrong');
     }
   }
 
@@ -284,17 +323,11 @@ class ApiServices {
       'latitude': '$latitude',
       'longitude': '$longitude'
     });
-    print(response);
+    // print(response);
     result = jsonDecode(response.body);
     if (result['message']['success']) {
       EasyLoading.showToast('${result['message']['message']}');
+      await LocalStorage().deletevisitedShop(shop_code);
     }
   }
-  // visitedShops()async{
-  //    var response;
-  //
-  //     'longitude': '${position.longitude}',
-  //     'latitude': '${position.latitude}'
-  //   });
-  // }
 }

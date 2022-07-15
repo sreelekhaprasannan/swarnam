@@ -159,15 +159,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     }
     if (orderType == 1) {
       isExecutive = false;
-      try {
-        await ApiServices()
-            .getDistributorHistory(context, distributorName)
-            .then((value) => historyList = value['orders']);
-        setState(() {});
-      } catch (e) {
-        EasyLoading.showError(
-            'Check Your Internet Connectivity\nAnd Try Again');
-      }
+      await ApiServices()
+          .getDistributorHistory(context, distributorName)
+          .then((value) => historyList = value['orders']);
+      setState(() {});
     }
   }
 

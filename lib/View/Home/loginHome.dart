@@ -1,4 +1,5 @@
 import 'package:cron/cron.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -49,6 +50,7 @@ class _LoginHomeState extends State<LoginHome> {
         await LocalStorage().getSubmittedordersinDistributor(context);
       }
       await LocalStorage().getSubmittedordersinShop(context);
+      await LocalStorage().getVisitedShops(context);
     });
   }
 
@@ -180,10 +182,11 @@ class _LoginHomeState extends State<LoginHome> {
 
   Widget orderSelectionDropDown() {
     return Container(
+      padding: EdgeInsets.all(5),
       height: 40,
       decoration: BoxDecoration(
           color: App_Colors().appWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0.0, 1.0),
@@ -192,33 +195,46 @@ class _LoginHomeState extends State<LoginHome> {
                 blurRadius: 1,
                 spreadRadius: 1)
           ]),
-      child: DropdownButton(
-        underline: Container(),
-        hint: Center(child: AppWidgets().text(text: 'Select OrderType')),
-        isExpanded: true,
-        value: selectedOrderType,
-        items: listofOrderType!
-            .map((e) => DropdownMenuItem(
-                  value: e,
-                  child: AppWidgets().text(
-                    text: e,
-                    maxLines: 1,
-                  ),
-                  alignment: Alignment.center,
-                ))
-            .toList(),
-        onChanged: (value) async {
-          selectedOrderType = value!.toString();
-          selectedExecutive = null;
-          if (selectedOrderType == 'Distributor Order') {
-            await MyApp().saveOrderType(1);
-          }
-          if (selectedOrderType == 'Shop Order') {
-            await MyApp().saveOrderType(0);
-          }
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2(
+          dropdownMaxHeight: MediaQuery.of(context).size.height / 6,
+          style: Theme.of(context).textTheme.titleMedium,
 
-          setState(() {});
-        },
+          underline: Container(),
+          hint: Center(child: AppWidgets().text(text: 'Select OrderType')),
+          // isExpanded: true,
+          value: selectedOrderType,
+          items: listofOrderType!
+              .map((e) => DropdownMenuItem(
+                  value: e,
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    width: MediaQuery.of(context).size.width / 1.3,
+                    child: AppWidgets().text(
+                      text: e,
+                      maxLines: 1,
+                    ),
+                  ),
+                  alignment: AlignmentDirectional.bottomStart))
+              .toList(),
+          onChanged: (value) async {
+            selectedOrderType = value!.toString();
+            selectedExecutive = null;
+            if (selectedOrderType == 'Distributor Order') {
+              selectedExecutive = null;
+              await MyApp().saveOrderType(1);
+            }
+            if (selectedOrderType == 'Shop Order') {
+              await MyApp().saveOrderType(0);
+              selectedExecutive = null;
+              selectedDistributor = null;
+              selectedRoute = null;
+            }
+
+            setState(() {});
+          },
+        ),
       ),
     );
   }
@@ -229,7 +245,7 @@ class _LoginHomeState extends State<LoginHome> {
       height: 40,
       decoration: BoxDecoration(
           color: App_Colors().appWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0.0, 1.0),
@@ -238,18 +254,21 @@ class _LoginHomeState extends State<LoginHome> {
                 blurRadius: 1,
                 spreadRadius: 1)
           ]),
-      child: DropdownButton(
-        elevation: 5,
+      child: DropdownButton2(
         underline: Container(),
         hint: Center(child: AppWidgets().text(text: 'Select Executive')),
         isExpanded: true,
         items: executives
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: AppWidgets().text(
-                    text: e,
-                    maxLines: 1,
-                  ),
+                  child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      width: MediaQuery.of(context).size.width / 1.5,
+                      child: AppWidgets().text(
+                        text: e,
+                        maxLines: 1,
+                      )),
                   alignment: Alignment.center,
                 ))
             .toList(),
@@ -275,7 +294,7 @@ class _LoginHomeState extends State<LoginHome> {
       height: 40,
       decoration: BoxDecoration(
           color: App_Colors().appWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0.0, 1.0),
@@ -284,8 +303,7 @@ class _LoginHomeState extends State<LoginHome> {
                 blurRadius: 1,
                 spreadRadius: 1)
           ]),
-      child: DropdownButton(
-        elevation: 5,
+      child: DropdownButton2(
         underline: Container(),
         hint: Center(child: AppWidgets().text(text: 'Select Distributor')),
         isExpanded: true,
@@ -317,7 +335,7 @@ class _LoginHomeState extends State<LoginHome> {
       height: 40,
       decoration: BoxDecoration(
           color: App_Colors().appWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0.0, 1.0),
@@ -326,17 +344,21 @@ class _LoginHomeState extends State<LoginHome> {
                 blurRadius: 1,
                 spreadRadius: 1)
           ]),
-      child: DropdownButton(
+      child: DropdownButton2(
         underline: Container(),
         hint: Center(child: AppWidgets().text(text: 'Select Route')),
         isExpanded: true,
         items: routeList
             .map((e) => DropdownMenuItem(
                   value: e,
-                  child: AppWidgets().text(
-                    text: e,
-                    maxLines: 1,
-                  ),
+                  child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: AppWidgets().text(
+                        text: e,
+                        maxLines: 1,
+                      )),
                   alignment: Alignment.center,
                 ))
             .toList(),
@@ -559,7 +581,11 @@ class _LoginHomeState extends State<LoginHome> {
         MyApp().saveAttendaceStatus(attendanceStatus);
       });
       setState(() {});
-    } catch (e) {}
+    } catch (e) {
+      await MyApp()
+          .getAttendaceStatus()
+          .then((value) => attendanceStatus = value);
+    }
   }
 
   Widget getAppBar(BuildContext context) {

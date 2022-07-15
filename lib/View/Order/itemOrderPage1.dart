@@ -81,17 +81,17 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
               isScrollable: true,
               tabs: itemGroupTabs,
               controller: tabController,
-              onTap: (i) {
+              onTap: (i) async {
                 selectedItemGroup = itemGroupList[i].toString();
                 itemGroupitemList.clear();
                 // print('print from setState ${itemList}');
-                itemList.forEach((element) async {
-                  if (element.item_group == selectedItemGroup) {
-                    itemGroupitemList.add(element);
-                  }
+                await getItemsinItemGroup();
+                Future.delayed(Duration(milliseconds: 300)).then((value) {
+                  setState(() {
+                    itemGroupitemList;
+                  });
                 });
 
-                setState(() {});
                 // getItemList();
                 // getTextEditingControllerList();
               },
@@ -205,6 +205,15 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
         ],
       )),
     );
+  }
+
+  Future<void> getItemsinItemGroup() async {
+    for (var element in itemList) {
+      if (await element.item_group == selectedItemGroup) {
+        itemGroupitemList.add(await element);
+      }
+    }
+    setState(() {});
   }
 
   void getItemGroupList() async {

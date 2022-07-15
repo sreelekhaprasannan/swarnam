@@ -179,13 +179,14 @@ class MyApp extends StatelessWidget {
     return disrtributor;
   }
 
-  Future saveDistributorDetails(distributor_code, name, mobile) async {
+  Future saveDistributorDetails(
+      String? distributor_code, String? name, String? mobile) async {
     var prf_Distributorname = await SharedPreferences.getInstance();
-    await prf_Distributorname.setString('Distributor_Name', name);
+    await prf_Distributorname.setString('Distributor_Name', name!);
     var prf_code = await SharedPreferences.getInstance();
-    await prf_code.setString('Distributor_code', distributor_code);
+    await prf_code.setString('Distributor_code', distributor_code!);
     var prf_mobile = await SharedPreferences.getInstance();
-    prf_mobile.setString('Distributor_Mobile', mobile);
+    prf_mobile.setString('Distributor_Mobile', mobile!);
   }
 
   Future getDistributorsDetails() async {

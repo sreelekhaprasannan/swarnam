@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swarnamordermanagement/Model/Shop/visitedShop.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/main.dart';
@@ -116,11 +119,23 @@ class _NewOrderShopState extends State<NewOrderShop> {
                               await MyApp().getShopDetails().then((value) {
                                 shop_code = value['Shop_code'];
                               });
-                              await ApiServices().shopVisit(context,
-                                  shop_code: shop_code,
-                                  executive: executive,
-                                  latitude: position.latitude,
-                                  longitude: position.longitude);
+                              try {
+                                await ApiServices().shopVisit(context,
+                                    shop_code: shop_code,
+                                    executive: executive,
+                                    latitude: position.latitude,
+                                    longitude: position.longitude);
+                              } on SocketException catch (e) {
+                                VisitedShop shopVisit = VisitedShop();
+                                shopVisit.executive = executive;
+                                shopVisit.latitude =
+                                    position.latitude.toString();
+                                shopVisit.longitude =
+                                    position.longitude.toString();
+                                shopVisit.shop_code = shop_code;
+                                await LocalStorage()
+                                    .insertToDB(visitedShop: shopVisit);
+                              } catch (e) {}
                             },
                             child: AppWidgets().text(
                                 text: 'VISITED',

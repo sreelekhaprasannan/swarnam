@@ -6,6 +6,7 @@ import 'package:swarnamordermanagement/Model/Distributor/distributorModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
+import 'package:swarnamordermanagement/Model/Shop/visitedShop.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/Home/loginHome.dart';
 
@@ -39,6 +40,7 @@ class LocalStorage {
       NewOrderListDistributor? itemOrderListDistributor,
       DistributorModel? distributorModel,
       ShopModel? shoplist,
+      VisitedShop? visitedShop,
       ItemModel? itemModel}) async {
     Database db = await swarnamDB();
     if (await itemsOrderListShop != null) {
@@ -56,7 +58,9 @@ class LocalStorage {
     }
     if (await distributorModel != null) {
       await db.insert('distributor_details', distributorModel!.tomap());
-      return 1;
+    }
+    if (await visitedShop != null) {
+      await db.insert('shop_visited', visitedShop!.tomap());
     }
   }
 
@@ -307,16 +311,14 @@ class LocalStorage {
 
   logOutfromApp() async {
     await MyApp().saveAttendaceStatus(0);
-    await MyApp().saveToken(null);
-    await MyApp().saveDistributorDetails(null, null, null);
-    await MyApp().saveOrderType(null);
-    await MyApp().saveSalesPerson(null);
-    await MyApp().saveSelectedDistributor(null);
-    await MyApp().saveSelectedExecutive(null);
-    await MyApp().saveSelectedExecutive(null);
-    await MyApp().saveSelectedRoute(null);
-    await MyApp().saveUserType(null);
-    await MyApp().saveShopDetails(null, null, null, null);
+    await MyApp().saveToken('');
+    await MyApp().saveDistributorDetails('', '', '');
+    await MyApp().saveSalesPerson('');
+    await MyApp().saveSelectedDistributor('');
+    await MyApp().saveSelectedExecutive('');
+    await MyApp().saveSelectedExecutive('');
+    await MyApp().saveSelectedRoute('');
+    await MyApp().saveShopDetails('', '', '', '');
     Database db = await swarnamDB();
     await db.delete('distributor_details');
     await db.delete('item_details');
@@ -359,5 +361,29 @@ class LocalStorage {
         });
       });
     }
+  }
+
+  getVisitedShops(BuildContext context) async {
+    Database db = await swarnamDB();
+    List<Map<String, Object?>> visitedShops =
+        await db.query('shop_visited', distinct: true);
+    visitedShops.forEach((element) {
+      print(element);
+      try {
+        ApiServices().shopVisit(context,
+            executive: element['executive'],
+            shop_code: element['shop_code'],
+            latitude: element['latitude'],
+            longitude: element['longitude']);
+      } catch (e) {}
+    });
+    print(visitedShops);
+  }
+
+  deletevisitedShop(shop_code) async {
+    Database db = await swarnamDB();
+    await db.delete('shop_visited',
+        where: 'shop_code = ?',
+        whereArgs: [shop_code]);
   }
 }
