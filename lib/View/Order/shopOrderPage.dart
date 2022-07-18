@@ -9,6 +9,7 @@ import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Order/orderHistoryPage.dart';
+import 'package:swarnamordermanagement/View/Shop/addShop.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
@@ -54,7 +55,13 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                   child: Container(
                     alignment: Alignment.center,
                     child: IconButton(
-                        onPressed: () {}, icon: FaIcon(FontAwesomeIcons.add)),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddShopPage()));
+                        },
+                        icon: FaIcon(FontAwesomeIcons.add)),
                   )),
             ],
           ),

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:cron/cron.dart';
-import 'package:file_downloader/file_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -8,9 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Home/loginHome.dart';
 import 'View/AppColors/appColors.dart';
 import 'View/Login/loginScreen.dart';
@@ -23,8 +19,8 @@ Future<void> main() async {
       debug:
           true // optional: set to false to disable printing logs to console (default: true)
       );
-  await MyApp().getToken().then((value) {
-    if (value == null || value == '') {
+  await MyApp().getLoginStatus().then((value) {
+    if (value == 0 || value == null) {
       isLogedin = false;
     } else {
       isLogedin = true;
@@ -57,36 +53,8 @@ void configLoading() {
     ..dismissOnTap = false;
 }
 
-//   initializing the Location Package for getting Location  //
-// Future getLocation() async {
-//   Location location = new Location();
-
-//   bool serviceEnabled;
-//   PermissionStatus permissionGranted;
-//   LocationData locationData;
-
-//   serviceEnabled = await location.serviceEnabled();
-//   if (!serviceEnabled) {
-//     serviceEnabled = await location.requestService();
-//     if (!serviceEnabled) {
-//       return;
-//     }
-//   }
-
-//   permissionGranted = await location.hasPermission();
-//   if (permissionGranted == PermissionStatus.denied) {
-//     permissionGranted = await location.requestPermission();
-//     if (permissionGranted != PermissionStatus.granted) {
-//       return;
-//     }
-//   }
-
-//   locationData = await location.getLocation();
-// }
-
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
-
   Future saveUserType(userType) async {
     var prefUser = await SharedPreferences.getInstance();
     await prefUser.setInt('User', userType);
@@ -109,20 +77,6 @@ class MyApp extends StatelessWidget {
     return orderType;
   }
 
-  Future saveToken(token) async {
-    var prefToken = await SharedPreferences.getInstance();
-    await prefToken.setString('token', token);
-  }
-
-  Future getToken() async {
-    var prf_Token = await SharedPreferences.getInstance();
-    String? token = prf_Token.getString('token');
-    if (token != null) {
-      isLogedin = true;
-    }
-    return token;
-  }
-
   Future saveSalesPerson(salesPerson) async {
     var prefPerson = await SharedPreferences.getInstance();
     await prefPerson.setString('Name', salesPerson);
@@ -143,6 +97,17 @@ class MyApp extends StatelessWidget {
     var prf_selectedRoute = await SharedPreferences.getInstance();
     String? route = await prf_selectedRoute.getString('route');
     return route;
+  }
+
+  Future saveLoginStatus(int? loginStatus) async {
+    var prefLoginStatus = await SharedPreferences.getInstance();
+    await prefLoginStatus.setInt('Login', loginStatus!);
+  }
+
+  Future getLoginStatus() async {
+    var prf_Login = await SharedPreferences.getInstance();
+    int? login = await prf_Login.getInt('Login');
+    return login;
   }
 
   Future saveAttendaceStatus(int? attendanceStatus) async {
@@ -297,7 +262,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    getToken().then((value) {
+    getLoginStatus().then((value) {
       if (value == null || value == '') {
         isLogedin = false;
       } else {

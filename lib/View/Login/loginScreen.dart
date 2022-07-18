@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:swarnamordermanagement/Model/Storage/storageModel.dart';
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
@@ -19,6 +21,8 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> {
   Timer? timer;
   var username, password;
+  final _storage = const FlutterSecureStorage();
+  List<StorageModel> _items = [];
   bool iswrongCredential = false,
       isVisible = false,
       isloading = false,
@@ -31,6 +35,7 @@ class LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     EasyLoading.addStatusCallback((status) {
       if (status == EasyLoadingStatus.dismiss) {
         timer?.cancel();
@@ -237,18 +242,26 @@ class LoginScreenState extends State<LoginScreen> {
     setState(() {
       isloading = true;
     });
-    saveUsenameandPassword();
     try {
       await ApiServices()
           .Login(usernameController.text, passwordController.text)
-          .then((value) async {
-        if (value['success']) {
+          .then((loginvalue) async {
+        if (loginvalue['success']) {
           iswrongCredential = false;
-          userType = value['user_type'];
-          token = value['token'];
+          userType = loginvalue['user_type'];
+          token = loginvalue['token'];
+          try {
+            await _storage.write(
+                key: "auth_token",
+                value: token,
+                iOptions: _getIOSOptions(),
+                aOptions: _getAndroidOptions());
+            MyApp().saveLoginStatus(1);
+          } catch (e) {
+            print(e);
+          }
           await MyApp().saveUserType(userType);
-          await MyApp().saveToken(token);
-          await MyApp().saveSalesPerson(value['sales_person']);
+          await MyApp().saveSalesPerson(loginvalue['sales_person']);
           await ApiServices().getShopList(context);
           await ApiServices().getItemList(context);
           if (userType == 1) {
@@ -270,8 +283,9 @@ class LoginScreenState extends State<LoginScreen> {
               }));
         } else {
           iswrongCredential = true;
+          MyApp().saveLoginStatus(0);
           timer?.cancel();
-          await EasyLoading.showToast('${value['message']}',
+          await EasyLoading.showToast('${loginvalue['message']}',
               toastPosition: EasyLoadingToastPosition.bottom);
           setState(() {
             isloading = false;
@@ -283,19 +297,35 @@ class LoginScreenState extends State<LoginScreen> {
           'Please Check your Internet Connection \n And Try Again',
           dismissOnTap: true);
       isloading = false;
-      setState(() {});
     }
+    setState(() {});
 
     //   setState(() {});
   }
 
-  saveUsenameandPassword() {
-    username = usernameController.text;
-    password = passwordController.text;
-  }
+  IOSOptions _getIOSOptions() =>
+      const IOSOptions(accessibility: IOSAccessibility.first_unlock);
 
-  getUserNameandPassword() {
-    var usercredentials = {"User": "$username", "password": "$password"};
-    return usercredentials;
+  AndroidOptions _getAndroidOptions() => const AndroidOptions(
+        encryptedSharedPreferences: true,
+      );
+  String? _getAccountName() =>
+      usernameController.text.isEmpty ? null : usernameController.text;
+
+  Future getToken() async {
+    try {
+      var value = await _storage.read(
+          key: "auth_token",
+          iOptions: _getIOSOptions(),
+          aOptions: _getAndroidOptions());
+      final v1 = await _storage.readAll(
+          iOptions: _getIOSOptions(), aOptions: _getAndroidOptions());
+      _items = v1.entries
+          .map((entry) => StorageModel(entry.key, entry.value))
+          .toList(growable: false);
+      return value;
+    } catch (e) {
+      print(e);
+    }
   }
 }

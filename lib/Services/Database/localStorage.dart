@@ -304,7 +304,7 @@ class LocalStorage {
 
   logOutfromApp() async {
     await MyApp().saveAttendaceStatus(0);
-    await MyApp().saveToken('');
+    await MyApp().saveLoginStatus(0);
     await MyApp().saveDistributorDetails('', '', '');
     await MyApp().saveSalesPerson('');
     await MyApp().saveSelectedDistributor('');

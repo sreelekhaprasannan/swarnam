@@ -63,23 +63,23 @@ class _LoginHomeState extends State<LoginHome> {
           backgroundColor: App_Colors().appWhite,
           actions: [getAppBar()],
         ),
-        drawer: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 150,
-                width: MediaQuery.of(context).size.width / 1.5,
-                color: Colors.blue,
-              ),
-              Container(
-                height: 160,
-                width: MediaQuery.of(context).size.width / 1.5,
-                color: Colors.blueAccent,
-              )
-            ],
-          ),
-        ),
+        // drawer: Container(
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Container(
+        //         height: 150,
+        //         width: MediaQuery.of(context).size.width / 1.5,
+        //         color: Colors.blue,
+        //       ),
+        //       Container(
+        //         height: 160,
+        //         width: MediaQuery.of(context).size.width / 1.5,
+        //         color: Colors.blueAccent,
+        //       )
+        //     ],
+        //   ),
+        // ),
         body: SafeArea(
           child: Container(
               color: App_Colors().appWhite,

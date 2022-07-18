@@ -1,17 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:swarnamordermanagement/Model/Item/itemListModel.dart';
 import 'package:swarnamordermanagement/Model/Order/distributorOrderList.dart';
 import 'package:swarnamordermanagement/Model/Order/shopOrderListModel.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Order/newDistributorOrderPage.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
-
-import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
 import '../Widgets/appWidgets.dart';
@@ -130,7 +125,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                                           child: AppWidgets().text(
                                               text:
                                                   // 'name',
-                                                  '${itemGroupitemList[index].item_name}',
+                                                  '${itemGroupitemList[index].item_code}',
                                               maxLines: 3,
                                               textsize: 14),
                                         )),

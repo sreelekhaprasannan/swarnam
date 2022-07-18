@@ -25,12 +25,18 @@ class ApiServices {
   //for getting tocken from sharedprferences
   Map<String, String>? headers = {};
   Future getToken() async {
-    await MyApp().getToken().then((token) {
+    await LoginScreenState().getToken().then((token) {
       headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Basic ${token}'
       };
     });
+    // await MyApp().getToken().then((token) {
+    //   headers = {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': 'Basic ${token}'
+    //   };
+    // });
   }
 
 // Api call For Login
@@ -135,6 +141,7 @@ class ApiServices {
     } on SocketException catch (e) {
       EasyLoading.showToast('You are Offline');
     } catch (e) {
+      print(e);
       EasyLoading.showToast('Something Went Wrong');
     }
   }
@@ -306,7 +313,6 @@ class ApiServices {
         filepath = dir.path;
         // your logic for saving the file.
       }
-      
 
       final taskId = await FlutterDownloader.enqueue(
         url: resulturl,

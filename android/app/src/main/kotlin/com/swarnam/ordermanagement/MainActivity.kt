@@ -1,4 +1,4 @@
-package com.example.swarnamordermanagement
+package com.swarnam.ordermanagement
 
 import io.flutter.embedding.android.FlutterActivity
 

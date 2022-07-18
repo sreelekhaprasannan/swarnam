@@ -10,7 +10,7 @@ import 'package:swarnamordermanagement/main.dart';
 
 import '../../Services/API/apiServices.dart';
 import '../../Services/Database/localStorage.dart';
-import 'itemOrderPage1.dart';
+import 'itemOrderPage.dart';
 
 class NewOrderDistributor extends StatefulWidget {
   const NewOrderDistributor({Key? key}) : super(key: key);
@@ -502,7 +502,7 @@ class _NewOrderDistributorState extends State<NewOrderDistributor> {
                 distributorDetails['Distributor_code'], 0);
             itemOrderList.clear();
             EasyLoading.showToast('${value['message']}');
-            setState(() {});
+            // setState(() {});
           }
         });
       } catch (e) {
