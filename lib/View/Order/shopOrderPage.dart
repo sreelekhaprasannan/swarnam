@@ -3,7 +3,6 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
@@ -21,7 +20,9 @@ class ShopOrderPage extends StatefulWidget {
 }
 
 class _ShopOrderPageState extends State<ShopOrderPage> {
-  List<ShopModel> shopList = [];
+  List<ShopModel> shopList = [], tempList = [];
+
+  TextEditingController searchController = TextEditingController();
   String? executive, distributor, route;
   int? attendanceStatus;
   var userType;
@@ -63,6 +64,23 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
             alignment: Alignment.center,
             padding: EdgeInsets.all(8),
             child: TextFormField(
+              controller: searchController,
+              onChanged: (value) {
+                if (value != '') {
+                  shopList.clear();
+                  tempList.forEach((element) {
+                    if (element.name!.contains(value)) {
+                      shopList.add(element);
+                    }
+                  });
+                } else {
+                  shopList.clear();
+                  tempList.forEach((element) {
+                    shopList.add(element);
+                  });
+                  setState(() {});
+                }
+              },
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30)),
@@ -191,18 +209,17 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
     }
     await MyApp().getSelectedDistributor().then((value) => distributor = value);
     await MyApp().getSelectedRoute().then((value) => route = value);
+    tempList.clear();
+    shopList.clear();
     await LocalStorage()
         .getShopList(
             executive: executive, distributor: distributor, route: route)
         .then((value) {
-      print(value);
       shopList = value;
-      print('$shopList');
     });
-    // await ApiServices().getShopList(context, route).then((value) {
-    //
-    //   shopList = value['shops'];
-    // });
+    shopList.forEach((element) {
+      tempList.add(element);
+    });
     setState(() {});
   }
 

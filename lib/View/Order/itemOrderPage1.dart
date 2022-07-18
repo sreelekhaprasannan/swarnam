@@ -49,9 +49,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
     tabController.addListener(() {
       setState(() {
         tabindex = tabController.index;
-        print(tabindex);
         selectedItemGroup = itemGroupList[tabindex];
-        // getItemList();
       });
     });
   }
@@ -84,7 +82,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
               onTap: (i) async {
                 selectedItemGroup = itemGroupList[i].toString();
                 itemGroupitemList.clear();
-                // print('print from setState ${itemList}');
                 await getItemsinItemGroup();
                 Future.delayed(Duration(milliseconds: 300)).then((value) {
                   setState(() {
@@ -109,8 +106,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
                   child: ListView.builder(
                       itemCount: itemGroupitemList.length,
                       itemBuilder: ((context, index) {
-                        // getTextEditingControllerList();
-                        // print(index);
                         if (itemGroupitemList.length > index) {
                           return Container(
                             margin: EdgeInsets.only(bottom: 3, top: 2),
@@ -269,7 +264,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
 
   void getUserType() async {
     await MyApp().getUserType().then((value) => userType = value);
-    // print(userType);
     setState(() {});
   }
 

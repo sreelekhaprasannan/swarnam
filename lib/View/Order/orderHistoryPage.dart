@@ -21,6 +21,7 @@ class OrderHistoryPage extends StatefulWidget {
 }
 
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
+  bool isLoading = false;
   String? shopName, distributorName, shop_code;
   int? userType, orderType;
   List historyList = [];
@@ -65,8 +66,14 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     }
   }
 
-  Expanded historyDisplay() {
-    if (historyList.length == 0) {
+  Widget historyDisplay() {
+    if (isLoading) {
+      return Expanded(
+          child: Center(
+              child: CircularProgressIndicator(
+        color: App_Colors().appTextColorYellow,
+      )));
+    } else if (historyList.length == 0) {
       return Expanded(child: Container());
     } else {
       return Expanded(
@@ -149,19 +156,27 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     if (orderType == 0) {
       isExecutive = true;
       try {
+        isLoading = true;
         await ApiServices().getShopHistory(context, shop_code).then((value) {
           for (var i in value['orders']) {
             historyList.add(i);
           }
+          isLoading = false;
         });
+
         setState(() {});
       } catch (e) {}
     }
     if (orderType == 1) {
       isExecutive = false;
+      isLoading = true;
       await ApiServices()
           .getDistributorHistory(context, distributorName)
-          .then((value) => historyList = value['orders']);
+          .then((value) {
+        historyList = value['orders'];
+        isLoading = false;
+      });
+
       setState(() {});
     }
   }

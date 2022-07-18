@@ -7,12 +7,10 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:swarnamordermanagement/Model/Api/shopApiModel.dart';
 import 'package:swarnamordermanagement/Model/Distributor/distributorModel.dart';
 import 'package:swarnamordermanagement/Model/Item/itemModel.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
-import '../../Model/Api/loginApiModel.dart';
 import '../../View/Login/loginScreen.dart';
 import '../../main.dart';
 
@@ -38,7 +36,7 @@ class ApiServices {
 // Api call For Login
   Future Login(username, password) async {
     var response;
-    LoginApiModel? result;
+    // LoginApiModel? result;
     var userdetails;
     var url = Uri.parse('$urlHead' + '$pathname' + 'auth.authenticate');
     try {
@@ -60,7 +58,6 @@ class ApiServices {
     Map itemGroups = {};
     response = await getResponse(context, 'generic.get_item_groups', body: {});
     itemGroups = jsonDecode(response.body);
-    // print(itemGroups);
     return itemGroups;
   }
 
@@ -105,7 +102,6 @@ class ApiServices {
         shopdetais.distributor = i['distributor'].toString();
         shopdetais.executive = i['sales_person'].toString();
         await LocalStorage().insertToDB(shoplist: shopdetais);
-        // print(shopdetais);
       }
 
       return result['message'];
@@ -135,8 +131,6 @@ class ApiServices {
         disributors.name = element['distributor_name'];
         disributors.mobile = element['mobile_no'];
         await LocalStorage().insertToDB(distributorModel: disributors);
-        // print(disributors);
-        // print(element);
       }
     } on SocketException catch (e) {
       EasyLoading.showToast('You are Offline');
@@ -195,7 +189,6 @@ class ApiServices {
         'latitude': '${position.latitude}'
       });
       attendencedetails = jsonDecode(response.body);
-      // print(attendencedetails['message']);
       return attendencedetails['message'];
     } on SocketException catch (e) {
       EasyLoading.showToast('You are Offline');
@@ -217,7 +210,6 @@ class ApiServices {
           'shop_code': '${shop}',
           'items': orderlist
         });
-        // print('$orderlist');
         order = jsonDecode(response.body);
         return order['message'];
       } on SocketException catch (e) {
@@ -272,7 +264,6 @@ class ApiServices {
           'sales_person': '${executive}',
           'items': orderlist
         });
-        // print('$orderlist');
         order = jsonDecode(response.body);
         return order['message'];
       } on SocketException catch (e) {
@@ -291,17 +282,35 @@ class ApiServices {
           body: {"order_type": ordertype, "order_id": orderId});
       var result = await jsonDecode(responce.body);
       var resulturl = result['message']['url'];
-      // print(result);
-      // Directory().create().then((value) {
-      //   Directory directory = value;
-      // });
-      String dir = (Platform.isAndroid
-              ? await getExternalStorageDirectory() //FOR ANDROID
-              : await getApplicationSupportDirectory())!
-          .path;
+      Directory dir = (Platform.isAndroid
+          ? await getExternalStorageDirectory() //FOR ANDROID
+          : await getApplicationSupportDirectory())!;
+
+      String newPath = "";
+      String filepath = "";
+      List<String> paths = dir.path.split("/");
+      for (int x = 1; x < paths.length; x++) {
+        String folder = paths[x];
+        if (folder != "Android") {
+          newPath = newPath + "/" + folder;
+        } else {
+          break;
+        }
+      }
+      newPath = newPath + "/Download";
+      dir = Directory(newPath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      if (await dir.exists()) {
+        filepath = dir.path;
+        // your logic for saving the file.
+      }
+      
+
       final taskId = await FlutterDownloader.enqueue(
         url: resulturl,
-        savedDir: '$dir',
+        savedDir: '${dir.path}',
         showNotification:
             true, // show download progress in status bar (for Android)
         openFileFromNotification:
@@ -323,7 +332,6 @@ class ApiServices {
       'latitude': '$latitude',
       'longitude': '$longitude'
     });
-    // print(response);
     result = jsonDecode(response.body);
     if (result['message']['success']) {
       EasyLoading.showToast('${result['message']['message']}');

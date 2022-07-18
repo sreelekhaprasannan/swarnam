@@ -38,7 +38,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   #  getting Location
   geolocator: ^8.2.1
-  location: ^4.2.0
+  # location: ^4.2.0
   # for Statusbar Color
   flutter_statusbarcolor_ns: ^0.4.0
   #  for Api calls get and post request
@@ -49,6 +49,8 @@ dependencies:
   provider: ^6.0.3
   # for icons
   font_awesome_flutter: ^10.1.0
+  # for Encryption
+  flutter_secure_storage: ^5.0.2
   #  for fonts
   google_fonts: ^2.3.2
   # for tab
@@ -64,6 +66,8 @@ dependencies:
   cron: ^0.5.0
   # dropdown
   dropdown_button2: ^1.6.3
+  # permission
+  permission_handler: ^9.2.0
 
 dev_dependencies:
   flutter_test:

@@ -45,7 +45,6 @@ class _LoginHomeState extends State<LoginHome> {
     final cron = Cron();
 
     cron.schedule(Schedule.parse('*/15 * * * *'), () async {
-      print(DateTime.now());
       if (userType == 1) {
         await LocalStorage().getSubmittedordersinDistributor(context);
       }
@@ -57,45 +56,71 @@ class _LoginHomeState extends State<LoginHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Container(
-          color: App_Colors().appWhite,
+        appBar: AppBar(
+          elevation: 0,
+          shadowColor: App_Colors().appWhite,
+          foregroundColor: App_Colors().appTextColorYellow,
+          backgroundColor: App_Colors().appWhite,
+          actions: [getAppBar()],
+        ),
+        drawer: Container(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              getAppBar(context),
-              Expanded(
-                child: Container(
-                    margin: EdgeInsets.only(left: 15, right: 15),
-                    child: Column(children: [
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: AppWidgets().logo(
-                                  height:
-                                      MediaQuery.of(context).size.height / 4,
-                                  width: MediaQuery.of(context).size.width / 4),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                          flex: 1,
-                          child: Center(
-                            child: AppWidgets().text(
-                                text: '${salesPersonName}',
-                                textsize:
-                                    MediaQuery.of(context).size.height / 35,
-                                fontWeight: FontWeight.w600),
-                          )),
-                      selectUserDisplay()
-                    ])),
+              Container(
+                height: 150,
+                width: MediaQuery.of(context).size.width / 1.5,
+                color: Colors.blue,
               ),
+              Container(
+                height: 160,
+                width: MediaQuery.of(context).size.width / 1.5,
+                color: Colors.blueAccent,
+              )
             ],
-          )),
-    ));
+          ),
+        ),
+        body: SafeArea(
+          child: Container(
+              color: App_Colors().appWhite,
+              child: Column(
+                children: [
+                  // getAppBar(),
+                  Expanded(
+                    child: Container(
+                        margin: EdgeInsets.only(left: 15, right: 15),
+                        child: Column(children: [
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: AppWidgets().logo(
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              4,
+                                      width: MediaQuery.of(context).size.width /
+                                          4),
+                                )
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                              flex: 1,
+                              child: Center(
+                                child: AppWidgets().text(
+                                    text: '${salesPersonName}',
+                                    textsize:
+                                        MediaQuery.of(context).size.height / 35,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                          selectUserDisplay()
+                        ])),
+                  ),
+                ],
+              )),
+        ));
   }
 
   // Displays widgets According to the user
@@ -588,32 +613,47 @@ class _LoginHomeState extends State<LoginHome> {
     }
   }
 
-  Widget getAppBar(BuildContext context) {
+  Widget getAppBar() {
     return Container(
-      padding: EdgeInsets.only(left: 2, right: 5),
+      padding: EdgeInsets.only(left: 5, right: 5),
       height: MediaQuery.of(context).size.height / 20,
       color: App_Colors().appWhite,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        IconButton(
-            onPressed: () async {
-              attendanceStatus = await markAttendance(context);
-              await MyApp().saveAttendaceStatus(attendanceStatus);
-              LoginHome().createState();
-            },
-            icon: getAttendanceIcon(context, attendanceStatus)),
-        IconButton(
-            onPressed: () async {
-              await LocalStorage().logOutfromApp();
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
-            },
-            icon: FaIcon(
-              size: MediaQuery.of(context).size.height / 23,
-              Icons.logout,
-              color: App_Colors().appTextColorYellow,
-            )),
+        getAttendanceIcon(attendanceStatus),
+        Padding(padding: EdgeInsets.only(right: 10)),
+        PopupMenuButton(
+          position: PopupMenuPosition.under,
+          icon: Icon(
+            Icons.settings,
+            size: 25,
+            color: App_Colors().appTextColorYellow,
+          ),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              child: menuitemsHome(
+                  'Attendance', FontAwesomeIcons.user, Colors.blue),
+              onTap: () => attendanceMenuPressed(),
+            ),
+            PopupMenuItem(
+              child: menuitemsHome('LogOut', Icons.logout, Colors.red),
+              onTap: () => logoutMenuPressed(),
+            )
+          ],
+        ),
       ]),
     );
+  }
+
+  Container menuitemsHome(text, icon, color) {
+    return Container(
+        child: Row(children: [
+      Icon(
+        icon,
+        color: color,
+      ),
+      Padding(padding: EdgeInsets.all(5)),
+      AppWidgets().text(text: text, textsize: 16),
+    ]));
   }
 
   markAttendance(context) async {
@@ -631,27 +671,38 @@ class _LoginHomeState extends State<LoginHome> {
     return status;
   }
 
-  Widget getAttendanceIcon(context, attendanceStatus) {
+  Widget getAttendanceIcon(attendanceStatus) {
     if (attendanceStatus == 1) {
       // late Attendance
       return attendanceIcon(
-          context, FontAwesomeIcons.userClock, App_Colors().appLightBlue);
+          FontAwesomeIcons.userClock, App_Colors().appLightBlue);
     } else if (attendanceStatus == 2) {
       // Present
       return attendanceIcon(
-          context, FontAwesomeIcons.userCheck, App_Colors().appLightGreen);
+          FontAwesomeIcons.userCheck, App_Colors().appLightGreen);
     } else {
       // Absent
-      return attendanceIcon(
-          context, FontAwesomeIcons.userXmark, App_Colors().appRed);
+      return attendanceIcon(FontAwesomeIcons.userXmark, App_Colors().appRed);
     }
   }
 
-  FaIcon attendanceIcon(context, icon, color) {
+  FaIcon attendanceIcon(icon, color) {
     return FaIcon(
       icon,
-      size: MediaQuery.of(context).size.height / 28,
+      size: MediaQuery.of(context).size.height / 35,
       color: color,
     );
+  }
+
+  attendanceMenuPressed() async {
+    attendanceStatus = await markAttendance(context);
+    await MyApp().saveAttendaceStatus(attendanceStatus);
+    setState(() {});
+  }
+
+  logoutMenuPressed() async {
+    await LocalStorage().logOutfromApp();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 }

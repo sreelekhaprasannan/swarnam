@@ -1,19 +1,17 @@
 import 'dart:async';
-
 import 'package:cron/cron.dart';
+import 'package:file_downloader/file_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Home/loginHome.dart';
-
-import 'Services/LoadData/loadingData.dart';
 import 'View/AppColors/appColors.dart';
 import 'View/Login/loginScreen.dart';
 
@@ -37,7 +35,9 @@ Future<void> main() async {
     statusBarColor: App_Colors().appStatuusBarColor,
   ));
   configLoading();
-  getLocation();
+  await MyApp().determinePosition();
+  await MyApp().getStoragePermission();
+  // getLocation();
 }
 
 //       initializing the Toast display EasyLoading     //
@@ -58,31 +58,31 @@ void configLoading() {
 }
 
 //   initializing the Location Package for getting Location  //
-Future getLocation() async {
-  Location location = new Location();
+// Future getLocation() async {
+//   Location location = new Location();
 
-  bool serviceEnabled;
-  PermissionStatus permissionGranted;
-  LocationData locationData;
+//   bool serviceEnabled;
+//   PermissionStatus permissionGranted;
+//   LocationData locationData;
 
-  serviceEnabled = await location.serviceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await location.requestService();
-    if (!serviceEnabled) {
-      return;
-    }
-  }
+//   serviceEnabled = await location.serviceEnabled();
+//   if (!serviceEnabled) {
+//     serviceEnabled = await location.requestService();
+//     if (!serviceEnabled) {
+//       return;
+//     }
+//   }
 
-  permissionGranted = await location.hasPermission();
-  if (permissionGranted == PermissionStatus.denied) {
-    permissionGranted = await location.requestPermission();
-    if (permissionGranted != PermissionStatus.granted) {
-      return;
-    }
-  }
+//   permissionGranted = await location.hasPermission();
+//   if (permissionGranted == PermissionStatus.denied) {
+//     permissionGranted = await location.requestPermission();
+//     if (permissionGranted != PermissionStatus.granted) {
+//       return;
+//     }
+//   }
 
-  locationData = await location.getLocation();
-}
+//   locationData = await location.getLocation();
+// }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
@@ -227,6 +227,34 @@ class MyApp extends StatelessWidget {
       "mobile": mobileno,
       "Shop_code": shop_code
     };
+  }
+
+  getStoragePermission() async {
+    bool serviveEnabled;
+    PermissionStatus permission;
+    serviveEnabled = await Permission.storage.isGranted;
+    if (!serviveEnabled) {
+      await Permission.storage.request();
+      // return Future.error('Storage Permission Denaid');
+    }
+    permission = await Permission.storage.status;
+    if (permission == Permission.storage.isDenied) {
+      permission = await Permission.storage.request();
+      if (permission == Permission.storage.isDenied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Storage permissions are denied');
+      }
+    }
+
+    if (permission == Permission.storage.isPermanentlyDenied) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Storage permissions are permanently denied, we cannot request permissions.');
+    }
   }
 
   Future<Position> determinePosition() async {

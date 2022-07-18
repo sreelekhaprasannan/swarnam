@@ -133,7 +133,6 @@ class LocalStorage {
     Database db = await swarnamDB();
     List distributors = await db.query('distributor_details',
         distinct: true, where: 'executive = ?', whereArgs: [executive]);
-    // print(distributors);
     return List.generate(distributors.length, (index) {
       return DistributorModel(
           distributor_code: distributors[index]['distributor_code'],
@@ -173,7 +172,6 @@ class LocalStorage {
       where: 'executive=?',
       whereArgs: [executive],
     );
-    print(li.length);
     for (var i in li) {
       distributor.add(i['distributor']);
     }
@@ -218,7 +216,6 @@ class LocalStorage {
       'item_details',
       distinct: true,
     );
-    // print('itemList form database: $itemList');
     for (var i in itemList) {
       items.add(ItemModel(
           item_code: i['item_code'].toString(),
@@ -270,10 +267,8 @@ class LocalStorage {
         where: "isSubmited=?",
         distinct: true,
         whereArgs: [1]);
-    // print(submittedShopList);
     if (submittedShopList.isNotEmpty) {
       submittedShopList.forEach((element) async {
-        // print('element[shopcode]:${element['shop_code']}');
         List<Map> li = [];
         await LocalStorage()
             .getShopOrderListDb(element['shop_code'], 1)
@@ -283,11 +278,9 @@ class LocalStorage {
           shop_code = value[0].shop_code;
           latitude = value[0].latitude;
           longitude = value[0].longitude;
-          // print(shop_code);
           for (var i in value) {
             li.add({"item_code": i.item_code, "qty": i.qty, "rate": i.rate});
           }
-          // print(li);
           try {
             await ApiServices()
                 .placeOrderShop(
@@ -333,21 +326,17 @@ class LocalStorage {
         where: "isSubmited=?",
         distinct: true,
         whereArgs: [1]);
-    // print(submittedShopList);
     if (submittedDistributorList.isNotEmpty) {
       submittedDistributorList.forEach((element) async {
-        // print('element[shopcode]:${element['shop_code']}');
         List<Map> li = [];
         await LocalStorage()
             .getDistributorOrderListDb(element['distributor_code'], 1)
             .then((value) async {
           var distributor;
           distributor = value[0].distributor_code;
-          // print(shop_code);
           for (var i in value) {
             li.add({"item_code": i.item_code, "qty": i.qty, "rate": i.rate});
           }
-          // print(li);
           try {
             await ApiServices()
                 .placeOrderDistributor(context,
@@ -368,7 +357,6 @@ class LocalStorage {
     List<Map<String, Object?>> visitedShops =
         await db.query('shop_visited', distinct: true);
     visitedShops.forEach((element) {
-      print(element);
       try {
         ApiServices().shopVisit(context,
             executive: element['executive'],
@@ -377,13 +365,11 @@ class LocalStorage {
             longitude: element['longitude']);
       } catch (e) {}
     });
-    print(visitedShops);
   }
 
   deletevisitedShop(shop_code) async {
     Database db = await swarnamDB();
-    await db.delete('shop_visited',
-        where: 'shop_code = ?',
-        whereArgs: [shop_code]);
+    await db
+        .delete('shop_visited', where: 'shop_code = ?', whereArgs: [shop_code]);
   }
 }

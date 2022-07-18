@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
-import 'package:swarnamordermanagement/Model/Api/loginApiModel.dart';
-import 'package:swarnamordermanagement/Services/LoadData/loadingData.dart';
-import '../../Blocs/loginBloc.dart';
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
@@ -20,15 +17,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final loginBloc = LoginBloc();
   Timer? timer;
   var username, password;
   bool iswrongCredential = false,
       isVisible = false,
       isloading = false,
       isLogedin = false;
-
-  LoadData? loadData;
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -37,10 +31,7 @@ class LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    // loadData = Provider.of<LoadData>(context, listen: false);
     EasyLoading.addStatusCallback((status) {
-      // print('EasyLoading Status $status');
       if (status == EasyLoadingStatus.dismiss) {
         timer?.cancel();
       }
@@ -282,14 +273,12 @@ class LoginScreenState extends State<LoginScreen> {
           timer?.cancel();
           await EasyLoading.showToast('${value['message']}',
               toastPosition: EasyLoadingToastPosition.bottom);
-          // print('message : ${value['message']}');
           setState(() {
             isloading = false;
           });
         }
       });
     } catch (e) {
-      // print(e);
       EasyLoading.showToast(
           'Please Check your Internet Connection \n And Try Again',
           dismissOnTap: true);
