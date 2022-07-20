@@ -37,6 +37,11 @@ class _NewOrderShopState extends State<NewOrderShop> {
     getShopDetails();
     getDistributor();
   }
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -501,8 +506,8 @@ class _NewOrderShopState extends State<NewOrderShop> {
             (int.parse((item.qty).toString()) *
                 double.parse((item.rate).toString()));
       }
+      setState(() {});
     });
-    setState(() {});
   }
 
   Future updateNewQty(NewOrderListShop shopOrder) async {

@@ -90,27 +90,30 @@ class ApiServices {
 
   Future getShopList(BuildContext context) async {
     var response;
-    Map result = {};
+    var result;
     var li;
     List<ShopModel> shopList = [];
     try {
       response = await getResponse(context, 'shop.get_all_shops', body: {});
-      result = jsonDecode(response.body);
-      li = result['message'];
-      ShopModel shopdetais = ShopModel();
-      shopList.clear();
-      for (var i in li['shops']) {
-        shopdetais.shop_code = i['shop_code'].toString();
-        shopdetais.name = i['name'].toString();
-        shopdetais.branch = i['branch'].toString();
-        shopdetais.phone = i['mobile_number'].toString();
-        shopdetais.route = i['route'].toString();
-        shopdetais.distributor = i['distributor'].toString();
-        shopdetais.executive = i['sales_person'].toString();
-        await LocalStorage().insertToDB(shoplist: shopdetais);
+      result = await jsonDecode(response.body);
+      if (result['message']['success']) {
+        li = result['message'];
+        ShopModel shopdetais = ShopModel();
+        shopList.clear();
+        for (var i in li['shops']) {
+          shopdetais.shop_code = i['shop_code'].toString();
+          shopdetais.name = i['name'].toString();
+          shopdetais.branch = i['branch'].toString();
+          shopdetais.phone = i['mobile_number'].toString();
+          shopdetais.route = i['route'].toString();
+          shopdetais.distributor = i['distributor'].toString();
+          shopdetais.executive = i['sales_person'].toString();
+          await LocalStorage().insertToDB(shoplist: shopdetais);
+        }
+        return result['message'];
+      } else {
+        return {'message': '0'};
       }
-
-      return result['message'];
     } on SocketException catch (e) {
       EasyLoading.showToast('You are Offline');
     } catch (e) {
@@ -146,28 +149,32 @@ class ApiServices {
     }
   }
 
-  getItemList(BuildContext context) async {
+  Future getItemList(BuildContext context) async {
     Map result = {};
     List<ItemModel> itemList = [];
     try {
       var response =
           await getResponse(context, 'generic.get_item_master', body: {});
       result = jsonDecode(response.body);
-      var li = result['message']['items'];
-      ItemModel itemdetais = ItemModel();
-      itemList.clear();
-      for (var i in li) {
-        itemdetais.item_code = i['item_code'].toString();
-        itemdetais.item_name = i['item_name'].toString();
-        itemdetais.item_group = i['item_group'].toString();
-        itemdetais.item_Price = i['rate'].toString();
-        await LocalStorage().insertToDB(itemModel: itemdetais);
+      if (result['message']['success']) {
+        var li = result['message']['items'];
+        ItemModel itemdetais = ItemModel();
+        itemList.clear();
+        for (var i in li) {
+          itemdetais.item_code = i['item_code'].toString();
+          itemdetais.item_name = i['item_name'].toString();
+          itemdetais.item_group = i['item_group'].toString();
+          itemdetais.item_Price = i['rate'].toString();
+          await LocalStorage().insertToDB(itemModel: itemdetais);
+        }
+        return result['message'];
+      } else {
+        return {"message": "0"};
       }
-
-      return result['message'];
     } on SocketException catch (e) {
       EasyLoading.showToast('You are Offline');
     } catch (e) {
+      print(e);
       EasyLoading.showToast('Something Went Wrong');
     }
   }
@@ -319,6 +326,7 @@ class ApiServices {
         savedDir: '${dir.path}',
         showNotification:
             true, // show download progress in status bar (for Android)
+        saveInPublicStorage: true,
         openFileFromNotification:
             true, // click on notification to open downloaded file (for Android)
       );
@@ -344,4 +352,77 @@ class ApiServices {
       await LocalStorage().deletevisitedShop(shop_code);
     }
   }
-}
+
+  downloadDailyShopOrderReport(context, salesPersonName) async {
+    try {
+      var responce = await getResponse(context, 'generic.get_summary_pdf_link',
+          body: {"sales_person": salesPersonName});
+      var result = await jsonDecode(responce.body);
+      var resulturl = result['message']['url'];
+      print(resulturl);
+      Directory dir = (Platform.isAndroid
+          ? await getExternalStorageDirectory() //FOR ANDROID
+          : await getApplicationSupportDirectory())!;
+
+      String newPath = "";
+      String filepath = "";
+      List<String> paths = dir.path.split("/");
+      for (int x = 1; x < paths.length; x++) {
+        String folder = paths[x];
+        if (folder != "Android") {
+          newPath = newPath + "/" + folder;
+        } else {
+          break;
+        }
+      }
+      newPath = newPath + "/Download";
+      dir = Directory(newPath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      if (await dir.exists()) {
+        filepath = dir.path;
+        // your logic for saving the file.
+      }
+      // File(dir.path + '/$resultfile');
+
+      final taskId = await FlutterDownloader.enqueue(
+        url: resulturl,
+        savedDir: '${dir.path}',
+        saveInPublicStorage: true,
+        showNotification:
+            true, // show download progress in status bar (for Android)
+        openFileFromNotification:
+            true, // click on notification to open downloaded file (for Android)
+      );
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      print(e);
+      EasyLoading.showToast('Something Went Wrong');
+    }
+  }
+
+  addnewShop(context,{shopname, mobile, contactPerson, distributor, route, shopType}) async{
+     var response;
+  
+      try {
+        response = await getResponse(context, 'shop.add_shop', body: {
+          'shop': '${shopname}',
+          'type': '${shopType}',
+          'contact_person': '${contactPerson}',
+          'mobile_number': '${mobile}',
+          'distributor': '${distributor}',
+          'route':'${route}'
+        });
+        var result = jsonDecode(response.body);
+        return result['message'];
+      } on SocketException catch (e) {
+        
+        EasyLoading.showToast(
+            'You are Offline');
+      } catch (e) {
+        EasyLoading.showToast('Something Went Wrong');
+      }
+    }
+  }

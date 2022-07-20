@@ -29,6 +29,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
   var tabindex;
   String? shop_code, selectedItemGroup, distributor;
   int? orderType, userType;
+  bool isGrouploading = true;
   late TabController tabController;
   @override
   void initState() {
@@ -69,25 +70,30 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
           Padding(padding: EdgeInsets.only(top: 5, bottom: 5)),
           Expanded(
             flex: 1,
-            child: TabBar(
-              labelColor: App_Colors().appBlack,
-              isScrollable: true,
-              tabs: itemGroupTabs,
-              controller: tabController,
-              onTap: (i) async {
-                selectedItemGroup = itemGroupList[i].toString();
-                itemGroupitemList.clear();
-                await getItemsinItemGroup();
-                Future.delayed(Duration(milliseconds: 300)).then((value) {
-                  setState(() {
-                    itemGroupitemList;
-                  });
-                });
+            child: isGrouploading
+                ? Center(
+                    child: CircularProgressIndicator(
+                    color: App_Colors().appTextColorYellow,
+                  ))
+                : TabBar(
+                    labelColor: App_Colors().appBlack,
+                    isScrollable: true,
+                    tabs: itemGroupTabs,
+                    controller: tabController,
+                    onTap: (i) async {
+                      selectedItemGroup = itemGroupList[i].toString();
+                      itemGroupitemList.clear();
+                      await getItemsinItemGroup();
+                      Future.delayed(Duration(milliseconds: 300)).then((value) {
+                        setState(() {
+                          itemGroupitemList;
+                        });
+                      });
 
-                // getItemList();
-                // getTextEditingControllerList();
-              },
-            ),
+                      // getItemList();
+                      // getTextEditingControllerList();
+                    },
+                  ),
           ),
           Expanded(
             flex: 10,
@@ -203,6 +209,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
         itemGroupitemList.add(await element);
       }
     }
+    // isloading = false;
     setState(() {});
   }
 
@@ -216,6 +223,7 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
           itemGroupTabs.add(Tab(text: i));
         }
       });
+      isGrouploading = false;
     }
     getItemList();
     setState(() {
@@ -239,7 +247,6 @@ class _ItemOrderPage1State extends State<ItemOrderPage1>
         index++;
       }
     }));
-
     setState(() {
       selectedItemGroup = itemGroupList[0];
       itemList.forEach((element) {

@@ -26,6 +26,7 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
   TextEditingController searchController = TextEditingController();
   String? executive, distributor, route;
   int? attendanceStatus;
+  bool isloading = true;
   var userType;
   @override
   void initState() {
@@ -72,22 +73,22 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
             padding: EdgeInsets.all(8),
             child: TextFormField(
               controller: searchController,
-              onChanged: (value) {
-                if (value != '') {
-                  shopList.clear();
-                  tempList.forEach((element) {
-                    if (element.name!.contains(value)) {
-                      shopList.add(element);
-                    }
-                  });
-                } else {
-                  shopList.clear();
-                  tempList.forEach((element) {
-                    shopList.add(element);
-                  });
-                  setState(() {});
-                }
-              },
+              // onChanged: (value) {
+              //   if (value != '') {
+              //     shopList.clear();
+              //     tempList.forEach((element) {
+              //       if (element.name!.contains(value)) {
+              //         shopList.add(element);
+              //       }
+              //     });
+              //   } else {
+              //     shopList.clear();
+              //     tempList.forEach((element) {
+              //       shopList.add(element);
+              //     });
+              //     setState(() {});
+              //   }
+              // },
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30)),
@@ -99,108 +100,131 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
               child: Container(
                 margin: EdgeInsets.only(top: 10),
                 padding: EdgeInsets.all(5),
-                child: ListView.builder(
-                    itemCount: shopList.length,
-                    itemBuilder: ((context, index) {
-                      return Container(
-                        padding: EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: App_Colors().appShopBackGround,
+                child: isloading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: App_Colors().appTextColorYellow,
                         ),
-                        margin: EdgeInsets.all(3),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AppWidgets().text(
-                                        text: '${shopList[index].name}',
-                                        textsize: 20,
-                                        color: App_Colors().appTextColorViolet),
-                                    AppWidgets().text(
-                                        text: '${shopList[index].branch}',
-                                        textsize: 18,
-                                        color: App_Colors().appTextColorViolet),
-                                    AppWidgets().text(
-                                        text: '${shopList[index].phone}',
-                                        textsize: 14,
-                                        color: App_Colors().appTextColorViolet),
-                                    Padding(padding: EdgeInsets.all(5))
-                                  ]),
+                      )
+                    : ListView.builder(
+                        itemCount: shopList.length,
+                        itemBuilder: ((context, index) {
+                          return Container(
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: App_Colors().appShopBackGround,
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: IconButton(
-                                        iconSize: 35,
-                                        onPressed: () async {
-                                          await MyApp().saveShopDetails(
-                                              shopList[index]
-                                                  .shop_code
-                                                  .toString(),
-                                              shopList[index].name.toString(),
-                                              shopList[index].branch.toString(),
-                                              shopList[index].phone.toString());
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      OrderHistoryPage()));
-                                        },
-                                        icon: Icon(Icons.history)),
-                                  )
-                                ],
-                              ),
+                            margin: EdgeInsets.all(3),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AppWidgets().text(
+                                            text: '${shopList[index].name}',
+                                            textsize: 20,
+                                            maxLines: 3,
+                                            color: App_Colors()
+                                                .appTextColorViolet),
+                                        // AppWidgets().text(
+                                        //     text: '${shopList[index].branch}',
+                                        //     textsize: 18,
+                                        //     color: App_Colors()
+                                        //         .appTextColorViolet),
+                                        AppWidgets().text(
+                                            text: '${shopList[index].phone}',
+                                            textsize: 14,
+                                            color: App_Colors()
+                                                .appTextColorViolet),
+                                        Padding(padding: EdgeInsets.all(5))
+                                      ]),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: IconButton(
+                                            iconSize: 35,
+                                            onPressed: () async {
+                                              await MyApp().saveShopDetails(
+                                                  shopList[index]
+                                                      .shop_code
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .name
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .branch
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .phone
+                                                      .toString());
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          OrderHistoryPage()));
+                                            },
+                                            icon: Icon(Icons.history)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                Expanded(
+                                  flex: 2,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        App_Colors()
+                                                            .appTextColorViolet)),
+                                            onPressed: () async {
+                                              await MyApp().saveShopDetails(
+                                                  shopList[index]
+                                                      .shop_code
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .name
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .branch
+                                                      .toString(),
+                                                  shopList[index]
+                                                      .phone
+                                                      .toString());
+                                              if (attendanceStatus != 0) {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            NewOrderShop()));
+                                              } else {
+                                                EasyLoading.showToast(
+                                                    'Please Mark Your Attendance');
+                                              }
+                                            },
+                                            child: AppWidgets().text(
+                                                textsize: 12,
+                                                text: 'ORDER',
+                                                color: App_Colors().appWhite)),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
                             ),
-                            Padding(padding: EdgeInsets.all(5)),
-                            Expanded(
-                              flex: 2,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                        style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                                    App_Colors()
-                                                        .appTextColorViolet)),
-                                        onPressed: () async {
-                                          await MyApp().saveShopDetails(
-                                              shopList[index]
-                                                  .shop_code
-                                                  .toString(),
-                                              shopList[index].name.toString(),
-                                              shopList[index].branch.toString(),
-                                              shopList[index].phone.toString());
-                                          if (attendanceStatus != 0) {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        NewOrderShop()));
-                                          } else {
-                                            EasyLoading.showToast(
-                                                'Please Mark Your Attendance');
-                                          }
-                                        },
-                                        child: AppWidgets().text(
-                                            textsize: 12,
-                                            text: 'ORDER',
-                                            color: App_Colors().appWhite)),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    })),
+                          );
+                        })),
               ))
         ],
       )),
@@ -223,10 +247,15 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
             executive: executive, distributor: distributor, route: route)
         .then((value) {
       shopList = value;
+      isloading = false;
     });
-    shopList.forEach((element) {
-      tempList.add(element);
-    });
+
+    shopList.forEach(
+      (element) {
+        tempList.add(element);
+      },
+    );
+    isloading = false;
     setState(() {});
   }
 

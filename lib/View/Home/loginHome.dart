@@ -1,8 +1,10 @@
+import 'dart:isolate';
+
 import 'package:cron/cron.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:file_downloader/file_downloader.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -35,6 +37,7 @@ class _LoginHomeState extends State<LoginHome> {
   List routeList = [];
   var distributorList = [];
   var attendanceStatus;
+  ReceivePort _port = ReceivePort();
   @override
   void initState() {
     // TODO: implement initState
@@ -42,6 +45,8 @@ class _LoginHomeState extends State<LoginHome> {
     getUserType();
     getSallesPerson();
     getAttendanceStatus();
+    FileDownload().registerPortData(setState);
+    // FlutterDownloader.registerCallback((id, status, progress) {});
     final cron = Cron();
 
     cron.schedule(Schedule.parse('*/15 * * * *'), () async {
@@ -130,6 +135,7 @@ class _LoginHomeState extends State<LoginHome> {
       case 0:
         {
           selectedOrderType = 'Shop Order';
+
           getDistributorsList(salesPersonName);
           return Expanded(
               flex: 10,
@@ -344,11 +350,12 @@ class _LoginHomeState extends State<LoginHome> {
             .toList(),
         onChanged: (value) async {
           await MyApp().saveSelectedDistributor(value.toString());
-          setState(() {
-            selectedRoute = null;
-            selectedDistributor = value!.toString();
-            getRouteList(selectedDistributor);
-          });
+
+          selectedRoute = null;
+          selectedDistributor = value!.toString();
+          // routeList.clear();
+          getRouteList(selectedDistributor);
+          setState(() {});
         },
         value: selectedDistributor,
       ),
@@ -398,10 +405,6 @@ class _LoginHomeState extends State<LoginHome> {
     );
   }
 
-  getContext() {
-    return context;
-  }
-
   navigationCards() {
     return Container(
       margin: EdgeInsets.only(top: 15),
@@ -425,6 +428,7 @@ class _LoginHomeState extends State<LoginHome> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ShopOrderPage()));
+                      // _LoginHomeState().deactivate();
                     }
                   }
                   if (selectedOrderType == 'Distributor Order') {
@@ -563,10 +567,10 @@ class _LoginHomeState extends State<LoginHome> {
       for (var i in value) {
         executives.add(i);
       }
-      setState(() {});
     });
-
-    setState(() {});
+    if (_LoginHomeState().mounted) {
+      setState(() {});
+    }
   }
 
   Future getDistributorsList(executive) async {
@@ -578,10 +582,12 @@ class _LoginHomeState extends State<LoginHome> {
         }
       },
     );
-    setState(() {});
+    if (_LoginHomeState().mounted) {
+      setState(() {});
+    }
   }
 
-  Future getRouteList(distributor) async {
+  Future<void> getRouteList(distributor) async {
     await LocalStorage().getRouteList(distributor).then((value) {
       routeList.clear();
       for (var i in value) {
@@ -589,6 +595,10 @@ class _LoginHomeState extends State<LoginHome> {
       }
     });
     setState(() {});
+    if (_LoginHomeState().mounted) {
+      setState(() {});
+    }
+    // return routeList;
   }
 
   getAttendanceStatus() async {
@@ -637,11 +647,24 @@ class _LoginHomeState extends State<LoginHome> {
             PopupMenuItem(
               child: menuitemsHome('LogOut', Icons.logout, Colors.red),
               onTap: () => logoutMenuPressed(),
-            )
+            ),
+            getPopupmenuitems()
           ],
         ),
       ]),
     );
+  }
+
+  PopupMenuItem<dynamic> getPopupmenuitems() {
+    if (userType == 0) {
+      return PopupMenuItem(
+        child: menuitemsHome('Daily Report', Icons.wysiwyg_outlined,
+            App_Colors().appReportBackGround),
+        onTap: () => reportMenuPressed(),
+      );
+    } else {
+      return PopupMenuItem(child: SizedBox(height: 0));
+    }
   }
 
   Container menuitemsHome(text, icon, color) {
@@ -704,5 +727,28 @@ class _LoginHomeState extends State<LoginHome> {
     await LocalStorage().logOutfromApp();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
+
+  reportMenuPressed() async {
+    var orderType, exeutive;
+    await MyApp().getUserType().then((value) async {
+      if (value == 1) {
+        //user type 1 => officer
+        await MyApp().getSelectedExecutive().then((exec) {
+          exeutive = exec;
+        });
+      }
+      if (value == 0) {
+        //user type 0 => executive
+        await MyApp().getSalesPerson().then((exec) {
+          exeutive = exec;
+        });
+      }
+    });
+    if (exeutive != null) {
+      await ApiServices().downloadDailyShopOrderReport(context, exeutive);
+    } else {
+      EasyLoading.showToast('Please Select Executive');
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,8 @@ class LoginScreenState extends State<LoginScreen> {
   bool iswrongCredential = false,
       isVisible = false,
       isloading = false,
-      isLogedin = false;
+      isLogedin = false,
+      canlogin = true;
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -260,27 +262,49 @@ class LoginScreenState extends State<LoginScreen> {
           } catch (e) {
             print(e);
           }
-          await MyApp().saveUserType(userType);
-          await MyApp().saveSalesPerson(loginvalue['sales_person']);
-          await ApiServices().getShopList(context);
-          await ApiServices().getItemList(context);
+          await ApiServices().getShopList(context).then((value) {
+            if (value['message'] == 0) {
+              canlogin = false;
+              isloading = false;
+              setState(() {});
+            } else {
+              canlogin = true;
+            }
+          });
+          await ApiServices().getItemList(context).then((value) {
+            if (value['message'] == 0) {
+              canlogin = false;
+              isloading = false;
+              setState(() {});
+            } else {
+              canlogin = true;
+            }
+          });
           if (userType == 1) {
             await ApiServices().getDistributors(context);
           }
-
-          Navigator.of(context).pushReplacement(PageRouteBuilder(
-              transitionDuration: Duration(milliseconds: 300),
-              reverseTransitionDuration: Duration(milliseconds: 300),
-              transitionsBuilder: (context, animation, secAnimation, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
-                      .animate(animation),
-                  child: child,
-                );
-              },
-              pageBuilder: (context, animation, secAnimation) {
-                return LoginHome();
-              }));
+          if (canlogin) {
+            await MyApp().saveUserType(userType);
+            await MyApp().saveSalesPerson(loginvalue['sales_person']);
+            Navigator.of(context).pushReplacement(PageRouteBuilder(
+                transitionDuration: Duration(milliseconds: 300),
+                reverseTransitionDuration: Duration(milliseconds: 300),
+                transitionsBuilder: (context, animation, secAnimation, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
+                            .animate(animation),
+                    child: child,
+                  );
+                },
+                pageBuilder: (context, animation, secAnimation) {
+                  return LoginHome();
+                }));
+          } else {
+            EasyLoading.showToast('Try Again Later');
+            isloading = false;
+            setState(() {});
+          }
         } else {
           iswrongCredential = true;
           MyApp().saveLoginStatus(0);
@@ -292,11 +316,13 @@ class LoginScreenState extends State<LoginScreen> {
           });
         }
       });
-    } catch (e) {
+    } on SocketException {
       EasyLoading.showToast(
           'Please Check your Internet Connection \n And Try Again',
           dismissOnTap: true);
       isloading = false;
+    } catch (e) {
+      print(e);
     }
     setState(() {});
 
@@ -327,5 +353,12 @@ class LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future deleteToken() async {
+    await _storage.delete(
+        key: "auth_token",
+        iOptions: _getIOSOptions(),
+        aOptions: _getAndroidOptions());
   }
 }

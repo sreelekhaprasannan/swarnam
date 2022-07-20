@@ -9,6 +9,7 @@ import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
 import 'package:swarnamordermanagement/Model/Shop/visitedShop.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/Home/loginHome.dart';
+import 'package:swarnamordermanagement/View/Login/loginScreen.dart';
 
 import '../../Model/Order/distributorOrderList.dart';
 import '../../Model/Order/shopOrderListModel.dart';
@@ -21,14 +22,18 @@ class LocalStorage {
             onCreate: (db, version) async {
       await db.execute(
           "CREATE TABLE itemsorderlistshop(id INTEGER PRIMARY KEY AUTOINCREMENT,shop_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,longitude TEXT,latitude TEXT,distributor TEXT,isSubmited INTEGER)");
+      // await db.execute(
+      //     'CREATE UNIQUE INDEX shop_order_table ON itemsorderlistshop');
       await db.execute(
           "CREATE TABLE itemsorderlistdistributor(id INTEGER PRIMARY KEY AUTOINCREMENT,distributor_name TEXT,distributor_code TEXT,item_group TEXT,item_name TEXT,item_code TEXT,rate TEXT,qty TEXT,isSubmited INTEGER)");
       await db.execute(
           "CREATE TABLE distributor_details(distributor_code TEXT,name TEXT,mobile TEXT,executive TEXT);");
       await db.execute(
           "CREATE TABLE item_details(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
+      // await db.execute('CREATE UNIQUE INDEX item_table ON item_details');
       await db.execute(
           "CREATE TABLE shop_details(shop_code TEXT,name TEXT,branch TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
+      // await db.execute('CREATE UNIQUE INDEX shop_table ON shop_details');
       await db.execute(
           "CREATE TABLE shop_visited(shop_code TEXT,executive TEXT,longitude TEXT,latitude Text)");
     }, version: 1);
@@ -72,6 +77,7 @@ class LocalStorage {
         whereArgs: [selectedShop, status],
         distinct: true);
     // for(var ol in orderList){}
+
     return List.generate(orderList.length, (index) {
       return NewOrderListShop(
           id: orderList[index]['id'].toString(),
@@ -115,6 +121,7 @@ class LocalStorage {
         distinct: true,
         where: 'executive=? AND distributor=? AND route=?',
         whereArgs: [executive, distributor, route]);
+
     return List.generate(shops.length, (index) {
       return ShopModel(
           shop_code: shops[index]['shop_code'],
@@ -133,6 +140,7 @@ class LocalStorage {
     Database db = await swarnamDB();
     List distributors = await db.query('distributor_details',
         distinct: true, where: 'executive = ?', whereArgs: [executive]);
+
     return List.generate(distributors.length, (index) {
       return DistributorModel(
           distributor_code: distributors[index]['distributor_code'],
@@ -165,6 +173,7 @@ class LocalStorage {
 
   Future getDistributors(executive) async {
     Database db = await swarnamDB();
+
     Set distributor = {};
     var li = await db.query(
       'shop_details',
@@ -304,6 +313,7 @@ class LocalStorage {
 
   logOutfromApp() async {
     await MyApp().saveAttendaceStatus(0);
+    await LoginScreenState().deleteToken();
     await MyApp().saveLoginStatus(0);
     await MyApp().saveDistributorDetails('', '', '');
     await MyApp().saveSalesPerson('');

@@ -56,7 +56,7 @@ dependencies:
   # for tab
   get: ^4.6.5
   # for Database
-  sqflite: ^2.0.2+1
+  sqflite: ^2.0.3
   # for path Povider
   path_provider: ^2.0.11
   # for download file
