@@ -1,8 +1,10 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
+import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 
 import '../../Services/Database/localStorage.dart';
@@ -36,6 +38,8 @@ class _AddShopPageState extends State<AddShopPage> {
 
   @override
   Widget build(BuildContext context) {
+    //
+    // WillPopScope(onWillPop: onWillPop)
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -64,7 +68,8 @@ class _AddShopPageState extends State<AddShopPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         addShopTextFormFields(
-                            hint: 'Shop Name', controller: shopNameController),
+                            hint: 'Shop Name',
+                            controller: shopNameController),
                         Padding(
                             padding: EdgeInsets.all(
                                 MediaQuery.of(context).size.height / 90)),
@@ -322,18 +327,40 @@ class _AddShopPageState extends State<AddShopPage> {
 
   addButtonPressed() async {
     if (shopNameController.text != '' &&
-        mobileController.text.length != 10 &&
+        mobileController.text.length != 0 &&
         contactPersonController.text != '' &&
         selectedDistributor != null &&
         selectedShopType != null &&
         selectedRoute != null) {
-      await ApiServices().addnewShop(context,
+      var result = await ApiServices().addnewShop(context,
           shopname: shopNameController.text,
           mobile: mobileController.text,
           contactPerson: contactPersonController.text,
           distributor: selectedDistributor,
           route: selectedRoute,
-          shopType: selectedShopType);
+          shopType: selectedShopType,
+          sales_person: salesPerson);
+      if (result['success']) {
+        ShopModel newShop = ShopModel();
+        newShop.name = shopNameController.text;
+        newShop.distributor = selectedDistributor;
+        newShop.executive = salesPerson;
+        newShop.phone = mobileController.text;
+        newShop.route = selectedRoute;
+        newShop.shop_code = result['shop_code'].toString();
+        await LocalStorage().insertToDB(shoplist: newShop);
+        shopNameController.text = '';
+        mobileController.text = '';
+        contactPersonController.text = '';
+        selectedDistributor = null;
+        selectedShopType = null;
+        selectedRoute = null;
+        EasyLoading.showToast(result['message']);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: ((context) => ShopOrderPage())));
+      } else {
+        EasyLoading.showToast(result['message']);
+      }
     } else {
       EasyLoading.showToast('All Fields are mandatyry');
     }

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swarnamordermanagement/Model/Shop/shopmodel.dart';
-import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/AppColors/appColors.dart';
 import 'package:swarnamordermanagement/View/Order/newShopOrderPage.dart';
@@ -73,22 +70,22 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
             padding: EdgeInsets.all(8),
             child: TextFormField(
               controller: searchController,
-              // onChanged: (value) {
-              //   if (value != '') {
-              //     shopList.clear();
-              //     tempList.forEach((element) {
-              //       if (element.name!.contains(value)) {
-              //         shopList.add(element);
-              //       }
-              //     });
-              //   } else {
-              //     shopList.clear();
-              //     tempList.forEach((element) {
-              //       shopList.add(element);
-              //     });
-              //     setState(() {});
-              //   }
-              // },
+              onChanged: (value) {
+                if (value != '') {
+                  shopList.clear();
+                  tempList.forEach((element) {
+                    if (element.name!.contains(value)) {
+                      shopList.add(element);
+                    }
+                  });
+                } else {
+                  shopList.clear();
+                  tempList.forEach((element) {
+                    shopList.add(element);
+                  });
+                }
+                setState(() {});
+              },
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30)),
@@ -160,9 +157,6 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                       .name
                                                       .toString(),
                                                   shopList[index]
-                                                      .branch
-                                                      .toString(),
-                                                  shopList[index]
                                                       .phone
                                                       .toString());
                                               Navigator.push(
@@ -195,9 +189,6 @@ class _ShopOrderPageState extends State<ShopOrderPage> {
                                                       .toString(),
                                                   shopList[index]
                                                       .name
-                                                      .toString(),
-                                                  shopList[index]
-                                                      .branch
                                                       .toString(),
                                                   shopList[index]
                                                       .phone

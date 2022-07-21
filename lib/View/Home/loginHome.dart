@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:swarnamordermanagement/Services/API/apiServices.dart';
 import 'package:swarnamordermanagement/Services/Database/localStorage.dart';
 import 'package:swarnamordermanagement/View/Order/shopOrderPage.dart';
+import 'package:swarnamordermanagement/View/Report/reportHome.dart';
 import 'package:swarnamordermanagement/View/Widgets/appWidgets.dart';
 import 'package:swarnamordermanagement/main.dart';
 
@@ -195,11 +196,9 @@ class _LoginHomeState extends State<LoginHome> {
                                       color: App_Colors().appBackground1))),
                         ],
                       ),
-                      // Padding(padding: EdgeInsets.all(10)),
                       SingleChildScrollView(
                         child: navigationCards(),
                       )
-                      // Padding(padding: EdgeInsets.all(5)),
                     ],
                   )));
         }
@@ -211,6 +210,7 @@ class _LoginHomeState extends State<LoginHome> {
     }
   }
 
+//Dropdown for Order Type
   Widget orderSelectionDropDown() {
     return Container(
       padding: EdgeInsets.all(5),
@@ -221,7 +221,6 @@ class _LoginHomeState extends State<LoginHome> {
           boxShadow: [
             BoxShadow(
                 offset: Offset(0.0, 1.0),
-                //Tween<Offset>(begin: Offset(0.0, 3.0),end: Offset(0.0, 0.0)),
                 color: Color(0xFF000000).withOpacity(0.4),
                 blurRadius: 1,
                 spreadRadius: 1)
@@ -474,9 +473,10 @@ class _LoginHomeState extends State<LoginHome> {
                 child: imageContainer('lib/Images/reporticon.png', 'REPORT',
                     App_Colors().appReportBackGround),
                 onTap: () {
-                  EasyLoading.showToast('Coming soon....',
-                      duration: Duration(milliseconds: 300),
-                      toastPosition: EasyLoadingToastPosition.bottom);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ReportHomePage()));
                 },
               ),
             ),
@@ -648,6 +648,13 @@ class _LoginHomeState extends State<LoginHome> {
               child: menuitemsHome('LogOut', Icons.logout, Colors.red),
               onTap: () => logoutMenuPressed(),
             ),
+            // PopupMenuItem(
+            //   child: menuitemsHome(
+            //       'Sync data', Icons.replay_outlined, Colors.blue),
+            //   onTap: () {
+            //     syncDataButtonPressed();
+            //   },
+            // ),
             getPopupmenuitems()
           ],
         ),
@@ -750,5 +757,9 @@ class _LoginHomeState extends State<LoginHome> {
     } else {
       EasyLoading.showToast('Please Select Executive');
     }
+  }
+
+  syncDataButtonPressed() async {
+    // await ApiServices().getShopList(context);
   }
 }

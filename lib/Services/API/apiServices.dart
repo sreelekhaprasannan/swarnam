@@ -103,7 +103,6 @@ class ApiServices {
         for (var i in li['shops']) {
           shopdetais.shop_code = i['shop_code'].toString();
           shopdetais.name = i['name'].toString();
-          shopdetais.branch = i['branch'].toString();
           shopdetais.phone = i['mobile_number'].toString();
           shopdetais.route = i['route'].toString();
           shopdetais.distributor = i['distributor'].toString();
@@ -385,7 +384,7 @@ class ApiServices {
         // your logic for saving the file.
       }
       // File(dir.path + '/$resultfile');
-
+      EasyLoading.showToast('Your File is downLoading...');
       final taskId = await FlutterDownloader.enqueue(
         url: resulturl,
         savedDir: '${dir.path}',
@@ -403,26 +402,32 @@ class ApiServices {
     }
   }
 
-  addnewShop(context,{shopname, mobile, contactPerson, distributor, route, shopType}) async{
-     var response;
-  
-      try {
-        response = await getResponse(context, 'shop.add_shop', body: {
-          'shop': '${shopname}',
-          'type': '${shopType}',
-          'contact_person': '${contactPerson}',
-          'mobile_number': '${mobile}',
-          'distributor': '${distributor}',
-          'route':'${route}'
-        });
-        var result = jsonDecode(response.body);
-        return result['message'];
-      } on SocketException catch (e) {
-        
-        EasyLoading.showToast(
-            'You are Offline');
-      } catch (e) {
-        EasyLoading.showToast('Something Went Wrong');
-      }
+  addnewShop(context,
+      {shopname,
+      mobile,
+      contactPerson,
+      distributor,
+      route,
+      shopType,
+      sales_person}) async {
+    var response;
+
+    try {
+      response = await getResponse(context, 'shop.add_shop', body: {
+        'shop': '${shopname}',
+        'type': '${shopType}',
+        'contact_person': '${contactPerson}',
+        'mobile_number': '${mobile}',
+        'distributor': '${distributor}',
+        'route': '${route}',
+        'sales_person': '${sales_person}'
+      });
+      var result = jsonDecode(response.body);
+      return result['message'];
+    } on SocketException catch (e) {
+      EasyLoading.showToast('You are Offline');
+    } catch (e) {
+      EasyLoading.showToast('Something Went Wrong');
     }
   }
+}

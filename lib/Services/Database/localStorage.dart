@@ -32,7 +32,7 @@ class LocalStorage {
           "CREATE TABLE item_details(item_code TEXT,item_name TEXT,item_group TEXT,item_price REAL)");
       // await db.execute('CREATE UNIQUE INDEX item_table ON item_details');
       await db.execute(
-          "CREATE TABLE shop_details(shop_code TEXT,name TEXT,branch TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
+          "CREATE TABLE shop_details(shop_code TEXT,name TEXT,phone TEXT,executive TEXT,distributor TEXT,route TEXT)");
       // await db.execute('CREATE UNIQUE INDEX shop_table ON shop_details');
       await db.execute(
           "CREATE TABLE shop_visited(shop_code TEXT,executive TEXT,longitude TEXT,latitude Text)");
@@ -126,7 +126,6 @@ class LocalStorage {
       return ShopModel(
           shop_code: shops[index]['shop_code'],
           name: shops[index]['name'],
-          branch: shops[index]['branch'],
           phone: shops[index]['phone'],
           distributor: shops[index]['distributor'],
           executive: shops[index]['executive'],
@@ -321,7 +320,7 @@ class LocalStorage {
     await MyApp().saveSelectedExecutive('');
     await MyApp().saveSelectedExecutive('');
     await MyApp().saveSelectedRoute('');
-    await MyApp().saveShopDetails('', '', '', '');
+    await MyApp().saveShopDetails('', '', '');
     Database db = await swarnamDB();
     await db.delete('distributor_details');
     await db.delete('item_details');

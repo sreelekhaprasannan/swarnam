@@ -37,6 +37,7 @@ class _NewOrderShopState extends State<NewOrderShop> {
     getShopDetails();
     getDistributor();
   }
+
   @override
   void deactivate() {
     // TODO: implement deactivate
@@ -97,10 +98,8 @@ class _NewOrderShopState extends State<NewOrderShop> {
                                 children: [
                                   AppWidgets().text(
                                       text: '${shopDetails['shop_name']}',
-                                      textsize: 16),
-                                  AppWidgets().text(
-                                      text: '${shopDetails['branch']}',
-                                      textsize: 14),
+                                      textsize: 25,
+                                      maxLines: 2),
                                   AppWidgets().text(
                                       text: '${shopDetails['mobile']}',
                                       textsize: 14),

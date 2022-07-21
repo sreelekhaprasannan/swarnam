@@ -168,13 +168,11 @@ class MyApp extends StatelessWidget {
     };
   }
 
-  Future saveShopDetails(shop_code, shop_name, branch, mobile) async {
+  Future saveShopDetails(shop_code, shop_name, mobile) async {
     var prf_shopname = await SharedPreferences.getInstance();
     await prf_shopname.setString('Shop_name', shop_name);
     var prf_shopcode = await SharedPreferences.getInstance();
-    await prf_shopname.setString('Shop_code', shop_code);
-    var prf_branch = await SharedPreferences.getInstance();
-    prf_branch.setString('Branch', branch);
+    await prf_shopcode.setString('Shop_code', shop_code);
     var prf_mobile = await SharedPreferences.getInstance();
     prf_mobile.setString('Mobile', mobile);
   }
