@@ -7,6 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:swarnamordermanagement/Model/Storage/storageModel.dart';
+import 'package:swarnamordermanagement/View/Login/resetPassword.dart';
 import '../../Services/API/apiServices.dart';
 import '../../main.dart';
 import '../AppColors/appColors.dart';
@@ -199,10 +200,16 @@ class LoginScreenState extends State<LoginScreen> {
               margin: EdgeInsets.only(top: 10),
               alignment: Alignment.bottomRight,
               child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ResetPasswordPage()));
+                  },
                   child: Text(
-                'Forgot password?',
-                style: TextStyle(color: Colors.blue),
-              )),
+                    'Forgot password?',
+                    style: TextStyle(color: Colors.blue),
+                  )),
             ),
             SizedBox(height: MediaQuery.of(context).size.height / 30),
 
