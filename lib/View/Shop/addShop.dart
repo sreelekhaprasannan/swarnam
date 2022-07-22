@@ -68,8 +68,7 @@ class _AddShopPageState extends State<AddShopPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         addShopTextFormFields(
-                            hint: 'Shop Name',
-                            controller: shopNameController),
+                            hint: 'Shop Name', controller: shopNameController),
                         Padding(
                             padding: EdgeInsets.all(
                                 MediaQuery.of(context).size.height / 90)),
@@ -104,16 +103,44 @@ class _AddShopPageState extends State<AddShopPage> {
                         Padding(
                             padding: EdgeInsets.all(
                                 MediaQuery.of(context).size.height / 90)),
-                        ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    App_Colors().appTextColorViolet)),
-                            onPressed: () {
-                              addButtonPressed();
-                            },
-                            child: AppWidgets().text(
-                                color: App_Colors().appBackground1,
-                                text: 'ADD SHOP')),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              App_Colors().appTextColorViolet)),
+                                  onPressed: () {
+                                    addButtonPressed();
+                                  },
+                                  child: AppWidgets().text(
+                                      color: App_Colors().appBackground1,
+                                      text: 'ADD SHOP')),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width / 50)),
+                            Expanded(
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              App_Colors().appTextColorViolet)),
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ShopOrderPage()));
+                                  },
+                                  child: AppWidgets().text(
+                                      color: App_Colors().appBackground1,
+                                      text: 'CANCEL')),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
